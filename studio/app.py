@@ -1,8 +1,9 @@
 """
 FastVideo AI Studio Pro - Production Web UI
 ===========================================
-Enterprise-grade video generation studio powered by FastVideo, Wan2.1 DiT,
-Triton Video Sparse Attention, and Lanczos4 High-Resolution Upscaling.
+Enterprise-grade video generation studio powered by FastVideo,
+Wan2.1 / Wan2.2 DiT (1.3B 480p & 5B 720p), Triton Video Sparse Attention,
+and Lanczos4 High-Resolution Upscaling.
 """
 
 import os
@@ -22,10 +23,10 @@ from studio.config import (
     MODEL_PATH_MAPPING,
     DURATION_CHOICES,
     DURATION_TO_FRAMES,
-    RESOLUTION_CONFIGS,
     MULTI_SCENE_DURATIONS,
     DEFAULT_FPS,
     NUM_CARDS,
+    get_resolution_config,
 )
 from studio.postprocess import (
     upscale_video_file,
@@ -43,10 +44,50 @@ from studio.ui_helpers import (
 def setup_model_environment(model_path: str) -> None:
     """Configure low-level attention backends for peak GPU performance."""
     if "fullattn" in model_path.lower():
-        os.environ["FASTVIDEO_ATTENTION_BACKEND"] = "FLASH_ATTN"
+        try:
+            import flash_attn  # noqa: F401
+            os.environ["FASTVIDEO_ATTENTION_BACKEND"] = "FLASH_ATTN"
+        except ImportError:
+            os.environ["FASTVIDEO_ATTENTION_BACKEND"] = "TORCH_SDPA"
     else:
         os.environ["FASTVIDEO_ATTENTION_BACKEND"] = "VIDEO_SPARSE_ATTN"
     os.environ["FASTVIDEO_STAGE_LOGGING"] = "1"
+
+
+def get_or_load_generator(
+    model_name_or_key: str,
+    generators: Dict[str, VideoGenerator],
+    default_params: Dict[str, SamplingParam],
+    progress=None,
+    step_cb=None,
+) -> Tuple[VideoGenerator, SamplingParam]:
+    """Retrieve preloaded generator or initialize dynamically on demand."""
+    model_path = MODEL_PATH_MAPPING.get(model_name_or_key, model_name_or_key)
+
+    if model_path in generators:
+        return generators[model_path], default_params[model_path]
+
+    msg = f"📦 Đang nạp mô hình {model_name_or_key} ({model_path}) vào GPU..."
+    safe_progress(progress, 0.05, desc=msg)
+    if step_cb:
+        step_cb(5, msg)
+    print(f"\n[Studio] Loading model dynamically: {model_path}")
+
+    setup_model_environment(model_path)
+    torch.cuda.empty_cache()
+
+    gen = VideoGenerator.from_pretrained(
+        model_path,
+        num_gpus=1,
+        text_encoder_cpu_offload=True,
+        dit_layerwise_offload=False,
+        dit_cpu_offload=False,
+        vae_cpu_offload=False,
+    )
+    param = SamplingParam.from_pretrained(model_path)
+    generators[model_path] = gen
+    default_params[model_path] = param
+    return gen, param
 
 
 def load_studio_prompts() -> Tuple[List[str], List[str]]:
@@ -101,15 +142,23 @@ def create_studio_interface(
         progress=None,
         step_cb=None,
     ):
-        model_path = MODEL_PATH_MAPPING.get(model_selection, "FastVideo/FastWan2.1-T2V-1.3B-Diffusers")
+        model_path = MODEL_PATH_MAPPING.get(model_selection, model_selection)
         setup_model_environment(model_path)
-        generator = generators[model_path]
-        params = deepcopy(default_params[model_path])
+        generator, param_template = get_or_load_generator(
+            model_selection,
+            generators,
+            default_params,
+            progress=progress,
+            step_cb=step_cb,
+        )
+
+        params = deepcopy(param_template)
         output_dir = "outputs/"
         os.makedirs(output_dir, exist_ok=True)
         total_start_time = time.time()
 
-        res_cfg = RESOLUTION_CONFIGS.get((aspect_ratio, resolution), (832, 448, 832, 448))
+        # Dynamically determine native and target dimensions
+        res_cfg = get_resolution_config(model_selection, aspect_ratio, resolution)
         native_w, native_h, target_w, target_h = res_cfg
 
         params.guidance_scale = guidance_scale
@@ -117,8 +166,8 @@ def create_studio_interface(
         params.width = native_w
         if use_negative_prompt and negative_prompt:
             params.negative_prompt = negative_prompt
-        else:
-            params.negative_prompt = default_params[model_path].negative_prompt
+        elif hasattr(param_template, "negative_prompt") and param_template.negative_prompt:
+            params.negative_prompt = param_template.negative_prompt
 
         params.seed = int(seed)
 
@@ -203,7 +252,6 @@ def create_studio_interface(
             if step_cb:
                 step_cb(40, f"Đang sinh video trên GPU ({nf} frames)...")
 
-            start_time = time.time()
             result = generator.generate_video(
                 prompt=prompt,
                 sampling_param=params,
@@ -239,10 +287,8 @@ def create_studio_interface(
 
             return output_path, params.seed, total_time, target_w, target_h
 
-    # Load prompt database
     examples, example_labels = load_studio_prompts()
 
-    # Dark Obsidian Pro Theme
     theme = gr.themes.Base().set(
         body_background_fill="#0f141c",
         block_background_fill="#161f2c",
@@ -254,26 +300,11 @@ def create_studio_interface(
         checkbox_background_color_selected="#e63946",
     )
 
-    def get_default_values(model_name: str) -> dict:
-        model_path = MODEL_PATH_MAPPING.get(model_name)
-        if model_path and model_path in default_params:
-            p = default_params[model_path]
-            return {
-                "height": p.height,
-                "width": p.width,
-                "num_frames": 97,
-                "guidance_scale": p.guidance_scale,
-                "seed": p.seed,
-            }
-        return {
-            "height": 448,
-            "width": 832,
-            "num_frames": 97,
-            "guidance_scale": 3.0,
-            "seed": 1024,
-        }
-
-    initial_values = get_default_values("FastWan2.1-T2V-1.3B")
+    available_models = [
+        "FastWan2.1-T2V-1.3B (480p - Siêu tốc)",
+        "FastWan2.2-TI2V-5B (720p - Sparse VSA)",
+        "FastWan2.2-TI2V-5B-FullAttn (720p - Flash/SDPA)",
+    ]
 
     with gr.Blocks(title="FastVideo AI Studio Pro", theme=theme, css=STUDIO_CSS) as studio_app:
         # Header Row
@@ -285,7 +316,7 @@ def create_studio_interface(
                 gr.HTML("""
                 <div style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
                     <h2 style="margin: 0; color: #f0f6fc; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">FastVideo AI Studio Pro</h2>
-                    <p style="margin: 3px 0 0 0; color: #8b9bb4; font-size: 13px;">Hệ thống sản xuất video AI chuyên nghiệp • Wan2.1 Transformer • Triton Sparse Attention • Siêu phân giải Lanczos4</p>
+                    <p style="margin: 3px 0 0 0; color: #8b9bb4; font-size: 13px;">Hệ thống sản xuất video AI chuyên nghiệp • Wan2.1 (480P) & Wan2.2 (720P) • Triton Sparse Attention • Siêu phân giải Lanczos4</p>
                 </div>
                 """)
 
@@ -300,8 +331,8 @@ def create_studio_interface(
 
                     with gr.Row():
                         model_selection = gr.Dropdown(
-                            choices=list(MODEL_PATH_MAPPING.keys()),
-                            value="FastWan2.1-T2V-1.3B",
+                            choices=available_models,
+                            value=available_models[0],
                             label="🤖 Chọn mô hình (Model)",
                             interactive=True,
                         )
@@ -377,7 +408,7 @@ def create_studio_interface(
                         duration_dropdown = gr.Dropdown(
                             label="⏱️ Thời lượng video (Đơn cảnh)",
                             choices=DURATION_CHOICES,
-                            value="6s",
+                            value="6s (Đề xuất tối ưu)",
                             interactive=True,
                         )
 
@@ -402,25 +433,25 @@ def create_studio_interface(
                             minimum=1.0,
                             maximum=12.0,
                             step=0.5,
-                            value=initial_values["guidance_scale"],
+                            value=3.0,
                         )
                         seed = gr.Slider(
                             label="Seed",
                             minimum=0,
                             maximum=1000000,
                             step=1,
-                            value=initial_values["seed"],
+                            value=1024,
                         )
                     with gr.Row():
                         randomize_seed = gr.Checkbox(label="🎲 Randomize seed", value=False)
                         num_frames = gr.Number(
                             label="Number of Frames (4k + 1)",
-                            value=initial_values["num_frames"],
+                            value=97,
                             interactive=True,
                         )
                     with gr.Row():
-                        height = gr.Number(label="Render Height", value=initial_values["height"], interactive=True)
-                        width = gr.Number(label="Render Width", value=initial_values["width"], interactive=True)
+                        height = gr.Number(label="Render Height", value=448, interactive=True)
+                        width = gr.Number(label="Render Width", value=832, interactive=True)
 
                 # Nút Run lớn, nổi bật
                 run_button = gr.Button(
@@ -446,7 +477,6 @@ def create_studio_interface(
                     visible=True,
                 )
 
-                # Khởi tạo NUM_CARDS slots video cards dạng dòng
                 card_groups = []
                 card_headers = []
                 card_statuses = []
@@ -547,25 +577,54 @@ def create_studio_interface(
             outputs=[num_frames, duration_note],
         )
 
-        def on_ratio_or_res_change(ratio: str, res: str):
-            cfg = RESOLUTION_CONFIGS.get((ratio, res), (832, 448, 832, 448))
+        def on_ratio_or_res_change(model_sel: str, ratio: str, res: str):
+            cfg = get_resolution_config(model_sel, ratio, res)
             native_w, native_h, target_w, target_h = cfg
-            if (target_w, target_h) == (native_w, native_h):
-                msg = f"📐 Độ phân giải xuất: **{target_w} x {target_h}** (Render gốc siêu tốc Wan2.1)"
+            is_5b = ("5B" in model_sel or "720p" in model_sel.lower() or "5b" in model_sel.lower())
+
+            if is_5b:
+                if (target_w, target_h) == (native_w, native_h):
+                    msg = f"📐 **Mô hình 5B Native 720P**: Render trực tiếp **{target_w} x {target_h}** sắc nét chuẩn điện ảnh!"
+                else:
+                    msg = f"📐 **Mô hình 5B Native 720P**: Render gốc {native_w}x{native_h} -> Siêu phân giải Lanczos4 lên **{target_w} x {target_h}**!"
             else:
-                msg = f"📐 Độ phân giải xuất: **{target_w} x {target_h}** (Render gốc {native_w}x{native_h} -> Siêu phân giải Lanczos4 + Unsharp)"
+                if (target_w, target_h) == (native_w, native_h):
+                    msg = f"📐 **Mô hình 1.3B**: Render gốc siêu tốc **{target_w} x {target_h}** (Wan2.1 480P)"
+                else:
+                    msg = f"📐 **Mô hình 1.3B**: Render gốc {native_w}x{native_h} -> Siêu phân giải Lanczos4 lên **{target_w} x {target_h}**!"
             return gr.update(value=target_h), gr.update(value=target_w), gr.update(value=msg)
 
         aspect_ratio.change(
             fn=on_ratio_or_res_change,
-            inputs=[aspect_ratio, resolution],
+            inputs=[model_selection, aspect_ratio, resolution],
             outputs=[height, width, resolution_info],
         )
 
         resolution.change(
             fn=on_ratio_or_res_change,
-            inputs=[aspect_ratio, resolution],
+            inputs=[model_selection, aspect_ratio, resolution],
             outputs=[height, width, resolution_info],
+        )
+
+        def on_model_change(model_sel: str, ratio: str):
+            is_5b = ("5B" in model_sel or "720p" in model_sel.lower() or "5b" in model_sel.lower())
+            if is_5b:
+                res_val = "HD (720p - Sắc nét)"
+            else:
+                res_val = "SD (480p - Gốc siêu nhanh)"
+
+            cfg = get_resolution_config(model_sel, ratio, res_val)
+            native_w, native_h, target_w, target_h = cfg
+            if is_5b:
+                msg = f"📐 **Mô hình 5B Native 720P**: Render trực tiếp **{target_w} x {target_h}** sắc nét chuẩn điện ảnh!"
+            else:
+                msg = f"📐 **Mô hình 1.3B**: Render gốc siêu tốc **{target_w} x {target_h}** (Wan2.1 480P)"
+            return gr.update(value=res_val), gr.update(value=target_h), gr.update(value=target_w), gr.update(value=msg)
+
+        model_selection.change(
+            fn=on_model_change,
+            inputs=[model_selection, aspect_ratio],
+            outputs=[resolution, height, width, resolution_info],
         )
 
         def on_mode_change(mode: str):
@@ -647,7 +706,7 @@ def create_studio_interface(
                         gr.update(),
                     ])
 
-            init_banner = f"<div class='banner-info'>📋 Hàng đợi: <strong>{num_runs} video</strong> cần tạo. Bắt đầu xử lý tuần tự...</div>"
+            init_banner = f"<div class='banner-info'>📋 Hàng đợi: <strong>{num_runs} video</strong> cần tạo với mô hình <strong>{model_sel}</strong>. Bắt đầu xử lý tuần tự...</div>"
             ext_choices = [f"Video #{k+1}" for k in range(num_runs)]
             yield (init_banner, *card_updates, gr.update(choices=ext_choices, value=ext_choices[0]))
 
@@ -694,7 +753,7 @@ def create_studio_interface(
 
                 active_cards[idx]["status"] = "<span class='status-badge badge-running'>⚡ Đang xử lý GPU...</span>"
                 active_cards[idx]["progress"] = make_progress_bar_html(10, "Đang khởi tạo...", "running")
-                banner_now = f"<div class='banner-info'>⚡ Đang xử lý <strong>Video #{idx+1}/{num_runs}</strong>: <em>{cur_prompt[:60]}...</em></div>"
+                banner_now = f"<div class='banner-info'>⚡ Đang xử lý <strong>Video #{idx+1}/{num_runs}</strong> ({model_sel}): <em>{cur_prompt[:60]}...</em></div>"
                 safe_progress(progress, (idx / num_runs), desc=f"Video #{idx+1}/{num_runs}: Đang tạo...")
                 yield build_yield_pack(banner_now)
 
@@ -807,11 +866,11 @@ def create_studio_interface(
             if not current_video or not os.path.exists(current_video):
                 return gr.update(visible=True, value=f"⚠️ {chosen_target} chưa có video để nối tiếp! Hãy tạo video trước."), *[gr.update() for _ in range(NUM_CARDS)]
 
-            model_path = MODEL_PATH_MAPPING.get(model_sel, "FastVideo/FastWan2.1-T2V-1.3B-Diffusers")
-            generator = generators[model_path]
-            params = deepcopy(default_params[model_path])
+            model_path = MODEL_PATH_MAPPING.get(model_sel, model_sel)
+            generator, param_template = get_or_load_generator(model_sel, generators, default_params, progress=progress)
+            params = deepcopy(param_template)
 
-            res_cfg = RESOLUTION_CONFIGS.get((ratio, res), (832, 448, 832, 448))
+            res_cfg = get_resolution_config(model_sel, ratio, res)
             native_w, native_h, target_w, target_h = res_cfg
 
             prompt_to_use = ext_prompt.strip() if ext_prompt and ext_prompt.strip() else "continuous scene, cinematic lighting, fluid action"
