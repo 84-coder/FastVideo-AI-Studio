@@ -81,8 +81,8 @@ def get_or_load_generator(
         num_gpus=1,
         text_encoder_cpu_offload=True,
         dit_layerwise_offload=False,
-        dit_cpu_offload=False,
-        vae_cpu_offload=False,
+        dit_cpu_offload=True,
+        vae_cpu_offload=True,
     )
     param = SamplingParam.from_pretrained(model_path)
     generators[model_path] = gen

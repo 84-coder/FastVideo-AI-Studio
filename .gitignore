@@ -91,6 +91,7 @@ docs/distillation/examples/
 !assets/images/**/*.jpeg
 !assets/images/**/*.gif
 !assets/videos/**/*.mp4
+!assets/videos/**/*.gif
 
 dmd_t2v_output/
 preprocess_output_text/

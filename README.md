@@ -18,14 +18,15 @@
 ## 📑 Mục Lục (Table of Contents)
 
 1. [🌟 Giới thiệu tổng quan (Overview)](#-giới-thiệu-tổng-quan-overview)
-2. [✨ Tính năng đột phá (Key Highlights)](#-tính-năng-đột-phá-key-highlights)
-3. [🖥️ Kiến trúc giao diện Studio (Studio Architecture)](#️-kiến-trúc-giao-diện-studio-studio-architecture)
-4. [⚡ Cài đặt & Khởi động nhanh (Quick Start)](#-cài-đặt--khởi-động-nhanh-quick-start)
-5. [🎬 Hướng dẫn sản xuất chuyên nghiệp (Production Guide)](#-hướng-dẫn-sản-xuất-chuyên-nghiệp-production-guide)
-6. [📊 Đo lường hiệu năng thực tế (Hardware Benchmarks)](#-đo-lường-hiệu-năng-thực-tế-hardware-benchmarks)
-7. [📂 Cấu trúc mã nguồn sản phẩm (Codebase Structure)](#-cấu-trúc-mã-nguồn-sản-phẩm-codebase-structure)
-8. [🌐 Hướng dẫn đồng bộ GitHub (Push to GitHub)](#-hướng-dẫn-đồng-bộ-github-push-to-github)
-9. [📜 Lời cảm ơn & Bản quyền (Credits & License)](#-lời-cảm-ơn--bản-quyền-credits--license)
+2. [🎥 Video Mẫu Thực Tế (Showcase Demos)](#-video-mẫu-thực-tế-showcase-demos)
+3. [✨ Tính năng đột phá (Key Highlights)](#-tính-năng-đột-phá-key-highlights)
+4. [🖥️ Kiến trúc giao diện Studio (Studio Architecture)](#️-kiến-trúc-giao-diện-studio-studio-architecture)
+5. [⚡ Cài đặt & Khởi động nhanh (Quick Start)](#-cài-đặt--khởi-động-nhanh-quick-start)
+6. [🎬 Hướng dẫn sản xuất chuyên nghiệp (Production Guide)](#-hướng-dẫn-sản-xuất-chuyên-nghiệp-production-guide)
+7. [📊 Đo lường hiệu năng thực tế (Hardware Benchmarks)](#-đo-lường-hiệu-năng-thực-tế-hardware-benchmarks)
+8. [📂 Cấu trúc mã nguồn sản phẩm (Codebase Structure)](#-cấu-trúc-mã-nguồn-sản-phẩm-codebase-structure)
+9. [🌐 Hướng dẫn đồng bộ GitHub (Push to GitHub)](#-hướng-dẫn-đồng-bộ-github-push-to-github)
+10. [📜 Lời cảm ơn & Bản quyền (Credits & License)](#-lời-cảm-ơn--bản-quyền-credits--license)
 
 ---
 
@@ -38,6 +39,18 @@ Hệ thống được thiết kế đặc biệt cho các nhà sáng tạo nội
 - Xuất đa tỷ lệ khung hình (**16:9, 9:16, 1:1**) và siêu phân giải lên tới **Full HD (1080p)**.
 - Xử lý hàng đợi hàng loạt (Batch Queue) tự động render từng dòng prompt trên GPU.
 - Tối ưu hóa sâu cho Windows 11 và dòng card đồ họa thế hệ mới NVIDIA RTX (Blackwell RTX 50 Series, Ada Lovelace RTX 40 Series).
+
+---
+
+## 🎥 Video Mẫu Thực Tế (Showcase Demos)
+
+Các video dưới đây được kết xuất trực tiếp bởi **FastVideo AI Studio Pro** trên card đồ họa NVIDIA RTX 5060 Ti:
+
+| 🎬 16:9 Cinematic Landscape (YouTube / Điện ảnh) | 📱 9:16 Mobile Portrait (TikTok / Reels / Shorts) |
+|:---:|:---:|
+| <img src="assets/videos/sample_landscape_eagle.gif" width="100%" alt="Golden Eagle Landscape Demo"/> | <img src="assets/videos/sample_portrait_panda.gif" width="75%" alt="Red Panda Portrait Demo"/> |
+| **Prompt**: *"A majestic golden eagle soaring over snowy mountain peaks during a vibrant crimson sunset, 8k resolution, cinematic lighting, photorealistic."* | **Prompt**: *"A cute red panda wearing a tiny knitted sweater drinking hot chocolate by a cozy wooden fireplace in a winter cabin, cinematic warm atmosphere."* |
+| 📐 832×448 (16:9) • ⏱️ 5s (61 frames) • 📥 [Tải Video Gốc (MP4)](assets/videos/sample_landscape_eagle.mp4) | 📐 448×832 (9:16) • ⏱️ 5s (61 frames) • 📥 [Tải Video Gốc (MP4)](assets/videos/sample_portrait_panda.mp4) |
 
 ---
 
