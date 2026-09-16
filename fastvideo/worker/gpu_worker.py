@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
+import sys
 from typing import Any, cast
 
 import torch
@@ -101,6 +102,8 @@ class Worker:
             # Drop the decoded tensor before multiprocessing or Ray transports
             # the worker result back to the generator.
             output_batch.output = torch.empty(0, device="cpu")
+        elif sys.platform == "win32" and output_batch.output is not None and output_batch.output.is_cuda:
+            output_batch.output = output_batch.output.cpu()
         return cast(ForwardBatch, output_batch)
 
     def shutdown(self) -> dict[str, Any]:

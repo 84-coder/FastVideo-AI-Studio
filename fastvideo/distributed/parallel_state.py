@@ -732,9 +732,13 @@ def init_distributed_environment(
 ):
     # Determine the appropriate backend based on the platform
     from fastvideo.platforms import current_platform
-    backend = "nccl"
     if current_platform.is_cuda_alike():
-        logger.info("Using nccl backend for CUDA platform")
+        if torch.distributed.is_nccl_available():
+            backend = "nccl"
+            logger.info("Using nccl backend for CUDA platform")
+        else:
+            backend = "gloo"
+            logger.info("Using gloo backend for CUDA platform (NCCL not available)")
     elif current_platform.is_npu():
         backend = "hccl"
         logger.info("Using hccl backend for NPU platform")

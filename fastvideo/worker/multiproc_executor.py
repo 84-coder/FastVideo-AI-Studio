@@ -10,11 +10,12 @@ import faulthandler
 import logging
 import logging.handlers
 import multiprocessing as mp
-from multiprocessing.connection import Connection
+from multiprocessing.connection import Connection, _ConnectionBase
 from multiprocessing.queues import Queue
 import os
 import queue
 import signal
+import sys
 import time
 from collections.abc import Callable
 from multiprocessing.process import BaseProcess
@@ -35,6 +36,21 @@ from fastvideo.worker.worker_base import WorkerWrapperBase
 
 logger = init_logger(__name__)
 _RPC_ERROR_KEY = "__fastvideo_rpc_error__"
+
+
+def _to_cpu_if_cuda(data: Any) -> Any:
+    """Move CUDA tensors to CPU on Windows to prevent CUDA IPC sharing errors."""
+    if sys.platform != "win32":
+        return data
+    if isinstance(data, torch.Tensor):
+        return data.cpu() if data.is_cuda else data
+    if isinstance(data, dict):
+        return {k: _to_cpu_if_cuda(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [_to_cpu_if_cuda(x) for x in data]
+    if isinstance(data, tuple):
+        return tuple(_to_cpu_if_cuda(x) for x in data)
+    return data
 
 
 def _raise_for_rpc_errors(method: str | Callable, responses: list[Any]) -> None:
@@ -564,6 +580,8 @@ class WorkerMultiprocProc:
         worker = None
         ready_pipe = kwargs.pop("ready_pipe")
         rank = kwargs.get("rank")
+        os.environ.setdefault("MASTER_ADDR", "127.0.0.1")
+        os.environ.setdefault("FASTVIDEO_LOOPBACK_IP", "127.0.0.1")
 
         try:
             worker = WorkerMultiprocProc(*args, **kwargs)
@@ -625,7 +643,7 @@ class WorkerMultiprocProc:
         while pipes:
             ready = mp.connection.wait(pipes.keys())
             for pipe in ready:
-                assert isinstance(pipe, Connection)
+                assert isinstance(pipe, (Connection, _ConnectionBase))
                 try:
                     # Wait until the WorkerProc is ready.
                     unready_proc_handle = pipes.pop(pipe)
@@ -710,18 +728,25 @@ class WorkerMultiprocProc:
                         result = output_batch.output
                         extra = output_batch.extra or {}
                         extra["peak_memory_mb"] = (torch.cuda.max_memory_allocated() / (1024 * 1024))
-                        self.pipe.send({
+                        response_data = {
                             "output_batch": result,
                             "logging_info": logging_info,
                             "extra": extra,
                             "trajectory_latents": output_batch.trajectory_latents,
                             "trajectory_timesteps": output_batch.trajectory_timesteps,
-                        })
+                        }
+                        if sys.platform == "win32":
+                            response_data = _to_cpu_if_cuda(response_data)
+                        self.pipe.send(response_data)
                     else:
                         result = self.worker.execute_method(method, *args, **kwargs)
+                        if sys.platform == "win32":
+                            result = _to_cpu_if_cuda(result)
                         self.pipe.send(result)
                 else:
                     result = self.worker.execute_method(method, *args, **kwargs)
+                    if sys.platform == "win32":
+                        result = _to_cpu_if_cuda(result)
                     self.pipe.send(result)
             except EOFError:
                 logger.info("Worker %d RPC pipe closed; exiting event loop", self.rank)
@@ -819,3 +844,5 @@ def set_multiproc_executor_envs() -> None:
     process before worker processes are created"""
 
     force_spawn()
+    os.environ.setdefault("MASTER_ADDR", "127.0.0.1")
+    os.environ.setdefault("FASTVIDEO_LOOPBACK_IP", "127.0.0.1")

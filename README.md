@@ -1,208 +1,129 @@
 <div align="center">
-<img src=assets/logos/logo.svg width="30%"/>
+  <img src="assets/logos/logo.svg" width="30%" alt="FastVideo Logo"/>
+  <h1>🎬 FastVideo AI Studio Pro</h1>
+  <p><b>Hệ thống sản xuất video AI thương mại chuyên nghiệp thế hệ mới</b></p>
+  <p><i>High-Throughput Cinematic AI Video Generation Studio powered by Wan2.1 Diffusion Transformers, Triton Sparse Attention & Lanczos4 Super-Resolution.</i></p>
 </div>
 
-<p align="center">
-     | <a href="https://hao-ai-lab.github.io/FastVideo"><b>Documentation</b></a> | <a href="https://haoailab.com/FastVideo/cookbook/"><b>Cookbook</b></a> | <a href="https://hao-ai-lab.github.io/FastVideo/inference/inference_quick_start/"><b> Quick Start</b></a> | <a href="https://github.com/hao-ai-lab/FastVideo/discussions/982"  target="_blank"><b>Weekly Dev Meeting</b></a>  | 🟣💬 <a href="https://join.slack.com/t/fastvideo/shared_invite/zt-3f4lao1uq-u~Ipx6Lt4J27AlD2y~IdLQ" target="_blank"> <b>Slack</b> </a> |  🟣💬 <a href="https://github.com/hao-ai-lab/FastVideo/discussions/1097" target="_blank"> <b> WeChat </b> </a> |
-</p>
+---
 
-**FastVideo is a unified post-training and real-time inference framework for accelerated video generation.**
+## 🌟 Giới thiệu (Overview)
 
-## NEWS
-- `2026/09/15`: Release [FastH3 8-Step V2](https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2), an eight-forward data-free DMD2 checkpoint distilled from MiniMax-H3 with 80% Video Sparse Attention. Run it with `examples/inference/basic/basic_fasth3_8step.py` or the [FastH3 8-Step V2 recipe](https://haoailab.com/FastVideo/cookbook/minimax-h3/).
-- `2026/09/01`: FastH3 now runs locally on Apple Silicon through MLX and on NVIDIA DGX Spark through CUDA 13, including two-Spark inference. Follow the [FastH3 recipes](https://haoailab.com/FastVideo/cookbook/minimax-h3/) and read the [Blog](https://haoailab.com/blogs/fasth3-local/).
-- `2026/08/27`: [FastH3 Preview v1](https://haoailab.com/blogs/fasth3-preview/) is an open-weight 4-step sparse-distilled MiniMax-H3 model for synchronized video-and-audio generation, developed in collaboration with [Nuva Lab](https://nuvalab.ai/) and the [NVIDIA FastGen team](https://github.com/NVlabs/FastGen). Download the recommended [VSA / Data-Free weights](https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree), or see the [full FastH3 collection](https://huggingface.co/collections/FastVideo/fastvideo-fasth3).
-- `2026/08/19`: FastVideo now supports MLX on Apple Silicon with [FastMetal-QAD](https://huggingface.co/collections/FastVideo/fastmetal), a family of 1.3B, 5B, and 14B models optimized for Mac—follow the [Apple Silicon guide](https://hao-ai-lab.github.io/FastVideo/getting_started/installation/mps/) and read the [Blog](https://haoailab.com/blogs/fastmetal/).
-- `2026/06/23`: Release FastWan-QAD: 5s of Video generated in 1.8s E2E. See the [FastWan-QAD models](https://huggingface.co/FastVideo/FastWan-QAD-FP8-1.3B), [Attn-QAT training guide](https://haoailab.com/FastVideo/training/attn_qat/), and [blog](https://haoailab.com/blogs/fastwan-qad/).
-- `2026/03/17`: Release demo: Into the Dreamverse: Vibe Directing in FastVideo, check out the [Blog](https://haoailab.com/blogs/dreamverse/).
-- `2026/03/13`: Release demo: Create a 5s 1080p Video in 4.5s with FastVideo on a Single GPU, check out the [Blog](https://haoailab.com/blogs/fastvideo_realtime_1080p/).
-- `2025/11/19`: Release [CausalWan2.2 I2V A14B Preview](https://huggingface.co/FastVideo/CausalWan2.2-I2V-A14B-Preview-Diffusers) models, [Blog](https://hao-ai-lab.github.io/blogs/fastvideo_causalwan_preview/) and [Inference Code!](https://github.com/hao-ai-lab/FastVideo/blob/main/examples/inference/basic/basic_self_forcing_causal_wan2_2_i2v.py).
-- `2025/08/04`: Release [FastWan](https://hao-ai-lab.github.io/FastVideo/distillation/dmd) models and [Sparse-Distillation](https://hao-ai-lab.github.io/blogs/fastvideo_post_training/).
+**FastVideo AI Studio Pro** là bộ giải pháp toàn diện biến công nghệ sinh video của Wan2.1 và FastVideo thành một studio sản xuất video điện ảnh thực thụ. 
 
-### More News
+Không chỉ dừng lại ở các demo kỹ thuật ngắn, **Studio Pro** được thiết kế phục vụ quy trình sản xuất nội dung chuyên nghiệp (YouTube, Shorts, TikTok, Quảng cáo TVC, Phim hoạt hình):
+- 🚀 **Thời lượng dài (15s – 60s)** nhờ kiến trúc **Nối tiếp đa cảnh (Multi-Scene Chaining)** chống tràn VRAM.
+- 📐 **Đa tỷ lệ khung hình chuẩn**: 16:9 (YouTube/Điện ảnh), 9:16 (Shorts/TikTok/Reels), 1:1 (Instagram/Vuông).
+- ✨ **Siêu phân giải Lanczos4 + Unsharp Mask**: Xuất video sắc nét SD (480p), HD (720p), Full HD (1080p).
+- 📋 **Hàng đợi tạo hàng loạt (Batch Queue)**: Nhập danh sách prompt theo từng dòng để hệ thống tự động render tuần tự trên GPU kèm thanh tiến trình trực tiếp.
+- ➕ **Nối tiếp phân cảnh (+5s)**: Cho phép nối tiếp một video đã có để tạo chuỗi hành động liền mạch.
+- ⚡ **Tối ưu Windows & CUDA 12**: Khắc phục triệt để lỗi IPC socket, tự động cấu hình Triton Video Sparse Attention trên các dòng GPU NVIDIA RTX 40/50 Series.
 
-- `2025/06/14`: Release finetuning and inference code for [VSA](https://arxiv.org/pdf/2505.13389).
-- `2025/04/24`: [FastVideo V1](https://hao-ai-lab.github.io/blogs/fastvideo/) is released!
-- `2025/02/18`: Release the inference code for [Sliding Tile Attention](https://hao-ai-lab.github.io/blogs/sta/).
+---
 
-## Key Features
+## 🖥️ Giao diện Studio (Studio Architecture)
 
-FastVideo has the following features:
+Hệ thống được thiết kế theo chuẩn Dark Obsidian Theme hiện đại:
+```
++-----------------------------------------------------------------------------+
+|                      🎬 FastVideo AI Studio Pro                             |
++------------------------------------+----------------------------------------+
+| 📝 CỘT CẤU HÌNH & NHẬP LIỆU        | 🎬 DANH SÁCH VIDEO & TIẾN TRÌNH        |
+|                                    |                                        |
+| 🤖 Model: FastWan2.1-T2V-1.3B      | ⚡ Sẵn sàng nhận lệnh / Hàng đợi       |
+| 💡 Presets: [Chọn Prompt Mẫu...]   |                                        |
+| 🎯 Mode: [Tạo Đơn] / [Tạo Hàng Đợi]| [🎬 Video #1: Hoàng hôn tuyết...]      |
+| 📝 Prompt Textarea (Multi-line)    | [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%] Hoàn thành |
+| 🚫 Negative Prompt                 | [▶️ Trình phát Video Player #1]        |
+|                                    |                                        |
+| ⚙️ Video Options:                  | [🎬 Video #2: Chiến binh Cyberpunk...] |
+| - Tỷ lệ: 16:9 / 9:16 / 1:1         | [▓▓▓▓▓▓▓▓▓▓░░░░░░░░░ 50%] GPU Render   |
+| - Phân giải: SD / HD / Full HD     | [▶️ Trình phát Video Player #2]        |
+| - Chế độ: Đơn cảnh / Đa cảnh       |                                        |
+| - Thời lượng: 3s, 5s, 6s... đến 60s| ➕ Nối tiếp phân cảnh (+5s Extension)  |
+| 🔧 CFG Guidance, Seed, Frames      | - Chọn video nguồn -> Nối tiếp +5s     |
+| [🚀 BẮT ĐẦU TẠO VIDEO (GENERATE)]  |                                        |
++------------------------------------+----------------------------------------+
+```
 
-- End-to-end post-training support for bidirectional and autoregressive models:
-  - Support full finetuning and LoRA finetuning for state-of-the-art open video DiTs
-  - Data preprocessing pipeline for video, image, and text data
-  - Distribution Matching Distillation (DMD2) stepwise distillation.
-  - Sparse attention with [Video Sparse Attention](https://arxiv.org/pdf/2505.13389)
-  - [Sparse distillation](https://hao-ai-lab.github.io/blogs/fastvideo_post_training/) to achieve >50x denoising speedup
-  - Scalable training with FSDP2, sequence parallelism, and selective activation checkpointing.
-  - Causal distillation through Self-Forcing
-  - See this [page](https://hao-ai-lab.github.io/FastVideo/training/overview/) for the supported training workflows, and the [support matrix](https://hao-ai-lab.github.io/FastVideo/inference/support_matrix/) for supported models.
-- State-of-the-art performance optimizations for inference
-  - Sequence Parallelism for distributed inference
-  - Multiple state-of-the-art attention backends
-  - User-friendly CLI and Python API
-  - See this [page](https://hao-ai-lab.github.io/FastVideo/inference/optimizations/) for full list of supported optimizations.
-- Diverse hardware and OS support
-  - Support H100, A100, 4090
-  - Support Linux, Windows, MacOS
-  - See this [page](https://hao-ai-lab.github.io/FastVideo/inference/support_matrix/) for full list of supported models, hardware assumptions, and optimization compatibility.
-- Realtime video generation & editing
-  - [Dreamverse](apps/dreamverse/README.md): stream and "vibe direct" video in realtime ([live demo](https://dreamverse.fastvideo.org/)), deployable on local GPU, a self-hosted B200 server, Docker, or serverless Modal
+---
 
-## Getting Started
+## ⚡ Khởi động nhanh (Quick Start)
 
-We recommend using [uv](https://docs.astral.sh/uv/) to create a clean environment. If you previously used Conda, switching to uv generally gives faster and more stable installs.
-
+### 1. Khởi chạy bằng 1 click trên Windows:
+Chỉ cần nhấp đúp vào file:
+```bat
+run_studio.bat
+```
+Hoặc chạy lệnh từ terminal:
 ```bash
-# Create and activate a new uv environment
-uv venv --python 3.12 --seed
-source .venv/bin/activate
+python run_studio.py --port 7860 --host 127.0.0.1
+```
+Trình duyệt sẽ tự động phục vụ tại địa chỉ: **http://127.0.0.1:7860**
 
-# Install FastVideo on NVIDIA CUDA 12
-UV_TORCH_BACKEND=cu126 uv pip install fastvideo
+---
+
+## 📂 Cấu trúc mã nguồn Product (Codebase Structure)
+
+```
+FastVideo-AI-Studio/
+├── studio/                           # Module lõi của AI Studio Pro
+│   ├── __init__.py                   # Khởi tạo package studio
+│   ├── config.py                     # Cấu hình phân giải, tỷ lệ, thời lượng, 4k+1 mapping
+│   ├── postprocess.py                # Siêu phân giải Lanczos4, ghép video, nối cảnh
+│   ├── ui_helpers.py                 # Bộ đo thời gian, thanh tiến trình, stylesheet
+│   ├── app.py                        # Giao diện Gradio 2 cột & bộ xử lý hàng đợi
+│   └── prompts.txt                   # Thư viện prompt mẫu chuẩn điện ảnh
+│
+├── run_studio.py                     # Entrypoint chính khởi chạy Studio
+├── run_studio.bat                    # Script khởi chạy 1-click trên Windows
+├── push_to_github.bat                # Script đẩy mã nguồn lên GitHub cá nhân
+│
+├── fastvideo/                        # Lõi tăng tốc FastVideo & Wan2.1 Engine
+│   ├── api/                          # Sampling params & configs
+│   ├── entrypoints/                  # VideoGenerator runtime
+│   ├── models/                       # Kiến trúc Wan2.1 DiT, Text Encoders, VAE
+│   ├── pipelines/                    # Quy trình xử lý đa giai đoạn
+│   └── attention/                    # Video Sparse Attention (Triton)
+│
+└── outputs/                          # Thư mục xuất video thành phẩm (.mp4)
 ```
 
-Use `UV_TORCH_BACKEND=cu130` on CUDA 13. Apple silicon users should follow the
-[MPS installation guide](https://hao-ai-lab.github.io/FastVideo/getting_started/installation/mps/).
+---
 
-> **On an Apple Silicon Mac?** FastVideo runs FastMetal-QAD through an MLX
-> runtime. Install with `uv pip install -e '.[mlx]'`, download
-> [`FastVideo/FastMetal-1.3B-QAD`](https://huggingface.co/FastVideo/FastMetal-1.3B-QAD),
-> and follow the
-> [Apple Silicon guide](https://hao-ai-lab.github.io/FastVideo/getting_started/installation/mps/).
+## 💡 Hướng dẫn Đẩy lên GitHub Cá Nhân (Push to GitHub)
 
-Please see our [docs](https://hao-ai-lab.github.io/FastVideo/getting_started/installation/) for more detailed installation instructions.
+Để đẩy toàn bộ bộ mã nguồn Studio này lên tài khoản GitHub của bạn (`https://github.com/84-coder/FastVideo-AI-Studio`):
 
-> **On an NVIDIA DGX Spark (GB10 / ARM64 + CUDA 13)?** There's no prebuilt ARM wheel for the FastVideo CUDA kernel, so it's an editable from-source install (`UV_TORCH_BACKEND=cu130 uv pip install -e .`, which compiles that kernel for you) rather than `UV_TORCH_BACKEND=cu130 uv pip install fastvideo`. A compatible prebuilt ARM64 FlashAttention wheel is available separately. Follow the [DGX Spark install guide](https://hao-ai-lab.github.io/FastVideo/getting_started/installation/spark/).
+1. Truy cập [github.com/new](https://github.com/new) và tạo một repository mới có tên:
+   **`FastVideo-AI-Studio`** (để chế độ Public hoặc Private tùy ý, không cần tích chọn README hay .gitignore vì repo cục bộ đã có sẵn).
+2. Chạy script tự động:
+   ```bat
+   push_to_github.bat
+   ```
+   Script sẽ tự động:
+   - Đổi Remote sang: `https://github.com/84-coder/FastVideo-AI-Studio.git`
+   - Tạo commit chuẩn hóa `FastVideo AI Studio Pro`
+   - Đẩy toàn bộ nhánh `main` lên GitHub của bạn.
 
-### Install with an AI coding agent
+---
 
-FastVideo is a monorepo with rich agent guidance (see [`AGENTS.md`](AGENTS.md)). If you use Claude Code, Cursor, or another coding agent, paste the prompt below — it detects your platform and follows the matching guide:
+## 🏆 Tính năng Nổi bật (Core Features)
 
-```text
-Install FastVideo (https://github.com/hao-ai-lab/FastVideo) into a fresh uv virtual environment.
+### 1. Chuẩn công nghiệp: Video Dài 15s – 60s Không Tràn VRAM
+Thay vì cố ép GPU render hàng trăm frame cùng một lúc dẫn đến lỗi Out Of Memory (OOM) hoặc chất lượng bị biến dạng, **FastVideo AI Studio Pro** áp dụng chuẩn Studio:
+- Chia nhỏ kịch bản thành từng phân cảnh 5s (81 frames).
+- Tự động thay đổi góc máy điện ảnh (*cinematic camera moves: wide establishing, tracking shot, close-up, dramatic low angle*).
+- Ghép nối liền mạch các phân cảnh và nâng cấp chất lượng bằng thuật toán nội suy Lanczos4.
 
-1. Detect the platform: run `uname -m`, `nvidia-smi`, and `nvcc --version`.
-2. Read and follow the matching install guide exactly (in this repo, or at
-   https://hao-ai-lab.github.io/FastVideo/getting_started/installation/):
-     - NVIDIA GPU, x86_64                         -> docs/getting_started/installation/gpu.md
-     - NVIDIA DGX Spark / GB10, aarch64, CUDA 13  -> docs/getting_started/installation/spark.md
-     - Apple Silicon, macOS                       -> docs/getting_started/installation/mps.md
-3. Use uv for every step. If a command fails, debug it and tell me what you changed.
-4. Verify the result:
-     python -c "import fastvideo, torch; print('cuda', torch.cuda.is_available())"
-     fastvideo --help
-5. Report which platform you detected and any deviations you had to make.
-```
+### 2. Tối ưu hóa GPU & Chế độ Tiết kiệm Bộ nhớ
+- Hỗ trợ `--text_encoder_cpu_offload` (bật mặc định) cho phép các card đồ họa tầm trung (như RTX 4060, RTX 5060 Ti, RTX 3070/3080 8GB-16GB) hoạt động mượt mà.
+- Hỗ trợ `--dit_layerwise_offload` cho các cấu hình RAM/VRAM giới hạn.
 
-## Sparse Distillation
+---
 
-For our sparse distillation techniques, please see our [distillation docs](https://hao-ai-lab.github.io/FastVideo/distillation/dmd/) and check out our [blog](https://hao-ai-lab.github.io/blogs/fastvideo_post_training/).
+## 📜 Giấy phép & Lời cảm ơn (Credits & License)
 
-See below for recipes and datasets:
-
-| Model                                                                                 | Sparse Distillation                                                                                             | Dataset                                                                                                  |
-| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| [FastWan2.1-T2V-1.3B](https://huggingface.co/FastVideo/FastWan2.1-T2V-1.3B-Diffusers) | [Recipe](https://github.com/hao-ai-lab/FastVideo/tree/main/examples/distill/Wan2.1-T2V/Wan-Syn-Data-480P)       | [FastVideo Synthetic Wan2.1 480P](https://huggingface.co/datasets/FastVideo/Wan-Syn_77x448x832_600k)     |
-| [FastWan2.2-TI2V-5B](https://huggingface.co/FastVideo/FastWan2.2-TI2V-5B-Diffusers)   | [Recipe](https://github.com/hao-ai-lab/FastVideo/tree/main/examples/distill/Wan2.2-TI2V-5B-Diffusers/Data-free) | [FastVideo Synthetic Wan2.2 720P](https://huggingface.co/datasets/FastVideo/Wan2.2-Syn-121x704x1280_32k) |
-
-## Dreamverse — Realtime Video Generation & Editing
-
-[Dreamverse](apps/dreamverse/README.md) is FastVideo's realtime video generation
-and editing platform — "vibe directing" a video as it streams. It lives in the
-monorepo under [`apps/dreamverse/`](apps/dreamverse/) and ships its own backend
-(`dreamverse-server`) plus a web UI.
-
-Try the [live demo](https://dreamverse.fastvideo.org/), read the
-[blog](https://haoailab.com/blogs/dreamverse/), or run it yourself. Dreamverse
-deploys on a local GPU, a self-hosted B200 server over SSH, Docker, or
-serverless [Modal](apps/dreamverse/scripts/modal/README.md) — see the
-[Dreamverse README](apps/dreamverse/README.md).
-
-## Inference
-
-### Generating Your First Video
-
-Here's a minimal example to generate a video using the default settings. Make sure VSA kernels are [installed](https://hao-ai-lab.github.io/FastVideo/attention/vsa/#installation). Create a file called `example.py` with the following code:
-
-```python
-import os
-from fastvideo import VideoGenerator
-
-def main():
-    os.environ["FASTVIDEO_ATTENTION_BACKEND"] = "VIDEO_SPARSE_ATTN"
-
-    # Create a video generator with a pre-trained model
-    generator = VideoGenerator.from_pretrained(
-        "FastVideo/FastWan2.1-T2V-1.3B-Diffusers",
-        num_gpus=1,  # Adjust based on your hardware
-    )
-
-    # Define a prompt for your video
-    prompt = "A curious raccoon peers through a vibrant field of yellow sunflowers, its eyes wide with interest."
-
-    # Generate the video
-    video = generator.generate_video(
-        prompt,
-        output_path="my_videos/",  # Controls where videos are saved
-        save_video=True
-    )
-
-if __name__ == '__main__':
-    main()
-```
-
-Run the script with:
-
-```bash
-python example.py
-```
-
-For a more detailed guide, please see our [inference quick start](https://hao-ai-lab.github.io/FastVideo/inference/inference_quick_start/).
-
-## More Guides
-
-- [Design Overview](https://hao-ai-lab.github.io/FastVideo/design/overview/)
-- [Distillation Guide](https://hao-ai-lab.github.io/FastVideo/distillation/dmd/)
-- [Contribution Guide](https://hao-ai-lab.github.io/FastVideo/contributing/overview/)
-
-## Awesome work using FastVideo or our research projects
-
-- [SGLang](https://github.com/sgl-project/sglang/tree/main/python/sglang/multimodal_gen): SGLang's diffusion inference functionality is based on a fork of FastVideo on Sept. 24, 2025.
-- [DanceGRPO](https://github.com/XueZeyue/DanceGRPO): A unified framework to adapt Group Relative Policy Optimization (GRPO) to visual generation paradigms. Code based on FastVideo.
-- [SRPO](https://github.com/Tencent-Hunyuan/SRPO): A method to directly align the full diffusion trajectory with fine-grained human preference. Code based on FastVideo.
-- [DCM](https://github.com/Vchitect/DCM): Dual-expert consistency model for efficient and high-quality video generation. Code based on FastVideo.
-- [HY-WorldPlay](https://github.com/Tencent-Hunyuan/HY-WorldPlay): An action-conditioned world model model trained using FastVideo framework.
-- [Hunyuan Video 1.5](https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5): A leading lightweight video generation model, where they proposed SSTA based on Sliding Tile Attention.
-- [Kandinsky-5.0](https://github.com/kandinskylab/kandinsky-5): A family of diffusion models for video & image generation, where their NABLA attention includes a Sliding Tile Attention branch.
-- [LongCat Video](https://github.com/meituan-longcat/LongCat-Video): A foundational video generation model with 13.6B parameters with block-sparse attention similar to Video Sparse Attention.
-
-## 🤝 Contributing
-
-We welcome all contributions. Please check out our guide [here](https://hao-ai-lab.github.io/FastVideo/contributing/overview/).
-See details in [development roadmap](https://github.com/hao-ai-lab/FastVideo/issues/899).
-
-## Acknowledgement
-
-We learned the design and reused code from the following projects: [Wan-Video](https://github.com/Wan-Video), [ThunderKittens](https://github.com/HazyResearch/ThunderKittens), [DMD2](https://github.com/tianweiy/DMD2), [diffusers](https://github.com/huggingface/diffusers), [xDiT](https://github.com/xdit-project/xDiT), [vLLM](https://github.com/vllm-project/vllm), [SGLang](https://github.com/sgl-project/sglang). We thank [MBZUAI](https://ifm.mbzuai.ac.ae/), [Anyscale](https://www.anyscale.com/), and [GMI Cloud](https://www.gmicloud.ai/) for their support throughout this project.
-
-## Citation
-
-If you find FastVideo useful, please consider citing our research work:
-
-```bibtex
-@article{zhang2025vsa,
-  title={Vsa: Faster video diffusion with trainable sparse attention},
-  author={Zhang, Peiyuan and Chen, Yongqi and Huang, Haofeng and Lin, Will and Liu, Zhengzhong and Stoica, Ion and Xing, Eric and Zhang, Hao},
-  journal={arXiv preprint arXiv:2505.13389},
-  year={2025}
-}
-
-@article{zhang2025fast,
-  title={Fast video generation with sliding tile attention},
-  author={Zhang, Peiyuan and Chen, Yongqi and Su, Runlong and Ding, Hangliang and Stoica, Ion and Liu, Zhengzhong and Zhang, Hao},
-  journal={arXiv preprint arXiv:2502.04507},
-  year={2025}
-}
-```
+- Engine gốc được phát triển bởi [Hao AI Lab (FastVideo)](https://github.com/hao-ai-lab/FastVideo).
+- Kiến trúc mô hình: [Wan2.1](https://github.com/Wan-Video/Wan2.1) bởi Alibaba Wan-AI.
+- Bản phân phối **FastVideo AI Studio Pro** được tùy biến và đóng gói bởi [84-coder](https://github.com/84-coder).

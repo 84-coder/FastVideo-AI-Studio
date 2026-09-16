@@ -333,6 +333,8 @@ class TextEncodingStage(PipelineStage):
                 attn_masks_list.append(attention_mask.to(device=target_device))
             if moved_for_forward and fastvideo_args.text_encoder_cpu_offload:
                 text_encoder.to("cpu")
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
         self._last_audio_embeds = audio_embeds_list if is_ltx2 else None
         return self.return_embeds(embeds_list, attn_masks_list, return_type, return_attention_mask, indices)
 

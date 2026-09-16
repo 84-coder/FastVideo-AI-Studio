@@ -33,6 +33,8 @@ env
 **/build/
 **.pyc
 **.txt
+!studio/prompts.txt
+!requirements*.txt
 *.log
 weights/
 logs/

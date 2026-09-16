@@ -808,9 +808,9 @@ def kill_itself_when_parent_died() -> None:
     if platform.system() == "Linux":
         libc = ctypes.CDLL("libc.so.6")
         libc.prctl(PR_SET_PDEATHSIG, signal.SIGKILL)
-    # elif platform.system() == "Darwin":
-    #     libc = ctypes.CDLL("libc.dylib")
-    #     logger.warning("kill_itself_when_parent_died is only supported in linux.")
+    elif platform.system() == "Windows":
+        # Windows handles worker process cleanup via daemon processes and executor pipes
+        logger.debug("kill_itself_when_parent_died is not applicable on Windows (daemon processes handled via multiprocessing).")
     else:
         logger.warning("kill_itself_when_parent_died is only supported in linux.")
 
