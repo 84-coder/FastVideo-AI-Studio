@@ -173,6 +173,15 @@ class VideoGenerator:
         self.fastvideo_args = fastvideo_args
         self.executor = executor_class(fastvideo_args, log_queue=log_queue)
 
+    def shutdown(self) -> None:
+        """Shutdown the underlying executor and release worker processes."""
+        if hasattr(self, "executor") and self.executor is not None:
+            try:
+                self.executor.shutdown()
+            except Exception:
+                pass
+            self.executor = None
+
     @classmethod
     def from_pretrained(
         cls,

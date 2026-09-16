@@ -26,6 +26,11 @@ from studio.config import (
     MULTI_SCENE_DURATIONS,
     DEFAULT_FPS,
     NUM_CARDS,
+    RESOLUTION_CHOICES,
+    RES_SD,
+    RES_HD,
+    RES_FHD,
+    ASPECT_RATIO_CHOICES,
     get_resolution_config,
 )
 from studio.postprocess import (
@@ -62,19 +67,33 @@ def get_or_load_generator(
     step_cb=None,
 ) -> Tuple[VideoGenerator, SamplingParam]:
     """Retrieve preloaded generator or initialize dynamically on demand."""
+    import gc
+
     model_path = MODEL_PATH_MAPPING.get(model_name_or_key, model_name_or_key)
 
     if model_path in generators:
         return generators[model_path], default_params[model_path]
 
-    msg = f"📦 Đang nạp mô hình {model_name_or_key} ({model_path}) vào GPU..."
+    msg = f"📦 Đang giải phóng mô hình cũ & nạp {model_name_or_key}..."
     safe_progress(progress, 0.05, desc=msg)
     if step_cb:
         step_cb(5, msg)
-    print(f"\n[Studio] Loading model dynamically: {model_path}")
+    print(f"\n[Studio] Preparing to load model: {model_path}")
+
+    # Shut down any active generator to free its worker process, CPU RAM, and GPU VRAM
+    for old_path, old_gen in list(generators.items()):
+        print(f"[Studio] Shutting down previous model: {old_path}")
+        try:
+            old_gen.shutdown()
+        except Exception as e:
+            print(f"[Studio] Warning shutting down {old_path}: {e}")
+    generators.clear()
+    default_params.clear()
+
+    gc.collect()
+    torch.cuda.empty_cache()
 
     setup_model_environment(model_path)
-    torch.cuda.empty_cache()
 
     gen = VideoGenerator.from_pretrained(
         model_path,
@@ -418,14 +437,14 @@ def create_studio_interface(
 
                     with gr.Row():
                         aspect_ratio = gr.Dropdown(
-                            choices=["16:9 (Ngang - YouTube)", "9:16 (Dọc - Shorts/TikTok)", "1:1 (Vuông - Feed)"],
-                            value="16:9 (Ngang - YouTube)",
+                            choices=ASPECT_RATIO_CHOICES,
+                            value=ASPECT_RATIO_CHOICES[0],
                             label="📐 Tỷ Lệ Khung Hình",
                             interactive=True,
                         )
                         resolution = gr.Dropdown(
-                            choices=["SD (480p - Gốc Siêu Tốc)", "HD (720p - Sắc Nét)", "Full HD (1080p - Siêu Nét)"],
-                            value="SD (480p - Gốc Siêu Tốc)",
+                            choices=RESOLUTION_CHOICES,
+                            value=RES_SD,
                             label="📺 Độ Phân Giải Xuất",
                             interactive=True,
                         )
@@ -647,10 +666,7 @@ def create_studio_interface(
 
         def on_model_change(model_sel: str, ratio: str):
             is_5b = ("5B" in model_sel or "720p" in model_sel.lower() or "5b" in model_sel.lower())
-            if is_5b:
-                res_val = "HD (720p - Sắc nét)"
-            else:
-                res_val = "SD (480p - Gốc siêu nhanh)"
+            res_val = RES_HD if is_5b else RES_SD
 
             cfg = get_resolution_config(model_sel, ratio, res_val)
             native_w, native_h, target_w, target_h = cfg

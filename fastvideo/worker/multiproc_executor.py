@@ -619,9 +619,9 @@ class WorkerMultiprocProc:
             # SystemExit() to avoid zmq exceptions in __del__.
             shutdown_requested = True
             traceback = get_exception_traceback()
-            logger.error("Worker %d hit an exception: %s", rank, traceback)
             if parent_process:
-                parent_process.send_signal(signal.SIGQUIT)
+                sig = getattr(signal, "SIGQUIT", getattr(signal, "SIGTERM", 15))
+                parent_process.send_signal(sig)
 
         finally:
             if ready_pipe is not None:
