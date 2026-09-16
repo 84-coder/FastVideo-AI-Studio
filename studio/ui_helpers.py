@@ -101,7 +101,7 @@ STUDIO_CSS = """
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* Force dark theme everywhere */
+/* Force dark theme root variables */
 :root, html, body, .gradio-container, .dark {
     --bg-main: #0a0d14;
     --bg-card: #141b26;
@@ -175,16 +175,16 @@ STUDIO_CSS = """
     color: #34d399;
 }
 
-/* Panels & Cards */
-.studio-card, .block, .gr-box, .gr-panel, div[data-testid="block"] {
+/* ========================================================
+   Panels & Cards: ONLY the outermost card has border & bg
+   ======================================================== */
+.studio-card {
     background-color: #141b26 !important;
     border: 1px solid #243142 !important;
     border-radius: 8px !important;
+    padding: 14px 16px !important;
+    margin-bottom: 12px !important;
     box-shadow: none !important;
-}
-.studio-card {
-    padding: 12px 14px !important;
-    margin-bottom: 10px !important;
 }
 
 /* Card Titles */
@@ -197,88 +197,222 @@ STUDIO_CSS = """
     display: flex !important;
     align-items: center !important;
     gap: 6px !important;
-    padding-bottom: 6px !important;
-    margin-bottom: 10px !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 12px !important;
     border-bottom: 1px solid #243142 !important;
 }
 
-/* Form Controls & Inputs - Zero White Backgrounds */
-input, textarea, select, 
-.gr-input, .gr-box input, .gr-box textarea,
-.wrap, .secondary-wrap, .wrap-inner,
-div[data-testid="textbox"] textarea,
-div[data-testid="dropdown"] select,
-.gr-dropdown {
+/* ========================================================
+   ELIMINATE NESTED BORDERS: Remove all borders from inner
+   Gradio blocks, forms, fieldsets, and containers inside cards
+   ======================================================== */
+.studio-card .block,
+.studio-card div[data-testid="block"],
+.studio-card .form,
+.studio-card fieldset,
+.studio-card .gr-panel,
+.studio-card .gr-box,
+.block.gradio-dropdown,
+.block.gradio-textbox,
+.block.gradio-radio,
+.block.gradio-slider,
+.block.gradio-checkbox,
+.block.gradio-number {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 0 10px 0 !important;
+}
+
+/* ========================================================
+   CLEAN FIELD LABELS: No chunky red badges, subtle clean text
+   ======================================================== */
+label,
+.block-label,
+span.label-text,
+.form label,
+.block label,
+.block label span,
+div[data-testid="dropdown"] label,
+div[data-testid="textbox"] label {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #8b9bb4 !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px !important;
+    margin-bottom: 4px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+}
+
+/* ========================================================
+   COMBOBOX / DROPDOWN: Single clean border, no nested frames
+   ======================================================== */
+.wrap,
+.gr-dropdown .wrap,
+div[data-testid="dropdown"] .wrap {
     background-color: #0b0f15 !important;
     border: 1px solid #243142 !important;
     border-radius: 6px !important;
-    color: #f0f6fc !important;
-    font-size: 13px !important;
-    padding: 6px 10px !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-shadow: none !important;
+    position: relative !important;
+    box-sizing: border-box !important;
 }
-input:focus, textarea:focus, select:focus, 
-.gr-input:focus, .wrap:focus-within {
+.wrap:hover,
+div[data-testid="dropdown"] .wrap:hover {
+    border-color: #3a4b63 !important;
+}
+.wrap:focus-within,
+div[data-testid="dropdown"] .wrap:focus-within {
     border-color: #ff4d5e !important;
     box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.25) !important;
-    outline: none !important;
 }
 
-/* Textarea Monospace */
-textarea {
-    font-family: 'JetBrains Mono', 'Consolas', monospace !important;
-    line-height: 1.5 !important;
+/* Remove all nested borders inside the dropdown wrap */
+.wrap .wrap-inner,
+.wrap .secondary-wrap,
+.wrap input,
+.wrap select,
+.wrap span,
+div[data-testid="dropdown"] .wrap-inner,
+div[data-testid="dropdown"] input {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
-
-/* Dropdown Menu styling */
-.dropdown, .options, ul.options, .dropdown-menu {
-    background-color: #0b0f15 !important;
-    border: 1px solid #243142 !important;
+.wrap input,
+div[data-testid="dropdown"] input {
     color: #f0f6fc !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    width: 100% !important;
+    height: 100% !important;
+    outline: none !important;
+    line-height: 36px !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Dropdown arrow icon styling */
+.wrap svg,
+div[data-testid="dropdown"] svg {
+    color: #8b9bb4 !important;
+    fill: #8b9bb4 !important;
+    opacity: 0.8 !important;
+}
+
+/* Dropdown Options Popup Menu */
+.dropdown, .options, ul.options, .dropdown-menu {
+    background-color: #0f141c !important;
+    border: 1px solid #243142 !important;
     border-radius: 6px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+    overflow: hidden !important;
+    z-index: 9999 !important;
 }
 ul.options li, .options .item, .dropdown-item {
     background-color: #141b26 !important;
     color: #f0f6fc !important;
-    padding: 7px 12px !important;
+    padding: 8px 12px !important;
     border-bottom: 1px solid #1c2635 !important;
     font-size: 12px !important;
+    cursor: pointer !important;
 }
 ul.options li:hover, .options .item:hover, ul.options li.selected {
     background-color: #243142 !important;
     color: #ffbe4d !important;
 }
 
-/* Labels */
-label, span.label-text, .block-title, .form label, .block label span {
-    color: #8b9bb4 !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    margin-bottom: 3px !important;
-    letter-spacing: 0.3px !important;
-}
-
-/* Radio Group Redesign (Horizontal Dark Pills) */
-.gr-radio, fieldset, div[data-testid="radio-group"] {
+/* ========================================================
+   TEXTBOX & TEXTAREA: Single clean border
+   ======================================================== */
+textarea,
+div[data-testid="textbox"] textarea {
     background-color: #0b0f15 !important;
     border: 1px solid #243142 !important;
     border-radius: 6px !important;
-    padding: 4px 6px !important;
-    margin-bottom: 6px !important;
+    color: #f0f6fc !important;
+    font-family: 'JetBrains Mono', 'Consolas', monospace !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    padding: 10px 12px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+}
+textarea:focus,
+div[data-testid="textbox"] textarea:focus {
+    border-color: #ff4d5e !important;
+    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.25) !important;
+    outline: none !important;
+}
+
+/* Single line text & number inputs */
+input[type="text"],
+input[type="number"],
+div[data-testid="number"] input {
+    background-color: #0b0f15 !important;
+    border: 1px solid #243142 !important;
+    border-radius: 6px !important;
+    color: #f0f6fc !important;
+    font-size: 13px !important;
+    height: 36px !important;
+    padding: 0 10px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+}
+input[type="text"]:focus,
+input[type="number"]:focus,
+div[data-testid="number"] input:focus {
+    border-color: #ff4d5e !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.25) !important;
+}
+
+/* ========================================================
+   RADIO BUTTONS: Clean horizontal pill selector
+   ======================================================== */
+.gr-radio, fieldset, div[data-testid="radio-group"] {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 0 8px 0 !important;
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: 6px !important;
+    gap: 8px !important;
+    box-shadow: none !important;
+}
+.gr-radio > div, fieldset > div {
+    display: flex !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
 }
 .gr-radio label, fieldset label {
-    background: #141b26 !important;
+    background: #0b0f15 !important;
     border: 1px solid #243142 !important;
-    border-radius: 4px !important;
-    padding: 4px 10px !important;
+    border-radius: 6px !important;
+    padding: 6px 14px !important;
     color: #8b9bb4 !important;
     font-size: 12px !important;
     font-weight: 500 !important;
     cursor: pointer !important;
     transition: all 0.15s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
 }
 .gr-radio label:hover, fieldset label:hover {
     border-color: #3a4b63 !important;
@@ -286,7 +420,7 @@ label, span.label-text, .block-title, .form label, .block label span {
 }
 .gr-radio label.selected, fieldset label.selected,
 .gr-radio input[type="radio"]:checked + span {
-    background: linear-gradient(135deg, rgba(230, 57, 70, 0.25), rgba(255, 77, 94, 0.15)) !important;
+    background: rgba(230, 57, 70, 0.15) !important;
     border-color: #e63946 !important;
     color: #ff4d5e !important;
     font-weight: 600 !important;

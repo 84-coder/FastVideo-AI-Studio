@@ -295,20 +295,27 @@ def create_studio_interface(
     ).set(
         body_background_fill="#0a0d14",
         body_background_fill_dark="#0a0d14",
-        block_background_fill="#141b26",
-        block_background_fill_dark="#141b26",
-        block_border_color="#243142",
-        block_border_color_dark="#243142",
+        block_background_fill="transparent",
+        block_background_fill_dark="transparent",
+        block_border_color="transparent",
+        block_border_color_dark="transparent",
+        block_border_width="0px",
+        block_label_background_fill="transparent",
+        block_label_background_fill_dark="transparent",
+        block_label_border_color="transparent",
+        block_label_border_color_dark="transparent",
+        block_label_border_width="0px",
+        block_label_text_color="#8b9bb4",
+        block_label_text_color_dark="#8b9bb4",
         input_background_fill="#0b0f15",
         input_background_fill_dark="#0b0f15",
         input_border_color="#243142",
         input_border_color_dark="#243142",
+        input_border_width="1px",
         button_primary_background_fill="#e63946",
         button_primary_background_fill_dark="#e63946",
         button_primary_background_fill_hover="#ff4d5e",
         button_primary_text_color="#ffffff",
-        block_label_text_color="#8b9bb4",
-        block_label_text_color_dark="#8b9bb4",
         body_text_color="#f0f6fc",
         body_text_color_dark="#f0f6fc",
     )
@@ -523,7 +530,7 @@ def create_studio_interface(
                             c_hdr = gr.Markdown(f"### 🎬 Phân Cảnh #{i+1}")
                             c_sta = gr.HTML("<span class='status-badge badge-idle'>Chờ Lệnh</span>")
                         c_prg = gr.HTML(make_progress_bar_html(0, "Chờ bắt đầu...", "idle"))
-                        c_vid = gr.Video(label=f"Video #{i+1}", height=380, interactive=False)
+                        c_vid = gr.Video(show_label=False, height=380, interactive=False)
                         c_met = gr.Markdown(value="", visible=False)
 
                     card_groups.append(c_grp)
