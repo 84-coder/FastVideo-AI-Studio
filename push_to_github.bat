@@ -31,7 +31,7 @@ git branch -M main
 echo.
 echo [3/4] Dong goi va tao commit san pham...
 git add -A
-git commit -m "feat: release FastVideo AI Studio Pro with batch queue, multi-scene chaining, and super-resolution"
+git commit -m "feat: release FastVideo AI Studio Pro with batch queue, multi-scene chaining, and super-resolution" >nul 2>&1
 
 echo.
 echo [4/4] Dang day ma nguon len GitHub (origin main)...
