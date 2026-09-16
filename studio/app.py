@@ -289,15 +289,28 @@ def create_studio_interface(
 
     examples, example_labels = load_studio_prompts()
 
-    theme = gr.themes.Base().set(
-        body_background_fill="#0f141c",
-        block_background_fill="#161f2c",
-        border_color_primary="#243142",
+    theme = gr.themes.Soft(
+        primary_hue="rose",
+        neutral_hue="slate",
+    ).set(
+        body_background_fill="#0a0d14",
+        body_background_fill_dark="#0a0d14",
+        block_background_fill="#141b26",
+        block_background_fill_dark="#141b26",
+        block_border_color="#243142",
+        block_border_color_dark="#243142",
+        input_background_fill="#0b0f15",
+        input_background_fill_dark="#0b0f15",
+        input_border_color="#243142",
+        input_border_color_dark="#243142",
         button_primary_background_fill="#e63946",
+        button_primary_background_fill_dark="#e63946",
         button_primary_background_fill_hover="#ff4d5e",
         button_primary_text_color="#ffffff",
-        slider_color="#f5a623",
-        checkbox_background_color_selected="#e63946",
+        block_label_text_color="#8b9bb4",
+        block_label_text_color_dark="#8b9bb4",
+        body_text_color="#f0f6fc",
+        body_text_color_dark="#f0f6fc",
     )
 
     available_models = [
@@ -306,19 +319,35 @@ def create_studio_interface(
         "FastWan2.2-TI2V-5B-FullAttn (720p - Flash/SDPA)",
     ]
 
-    with gr.Blocks(title="FastVideo AI Studio Pro", theme=theme, css=STUDIO_CSS) as studio_app:
-        # Header Row
-        with gr.Row():
-            with gr.Column(scale=1):
-                if os.path.exists("assets/full.svg"):
-                    gr.Image("assets/full.svg", show_label=False, container=False, height=60)
-            with gr.Column(scale=5):
-                gr.HTML("""
-                <div style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
-                    <h2 style="margin: 0; color: #f0f6fc; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">FastVideo AI Studio Pro</h2>
-                    <p style="margin: 3px 0 0 0; color: #8b9bb4; font-size: 13px;">Hệ thống sản xuất video AI chuyên nghiệp • Wan2.1 (480P) & Wan2.2 (720P) • Triton Sparse Attention • Siêu phân giải Lanczos4</p>
+    with gr.Blocks(
+        title="FastVideo AI Studio Pro",
+        theme=theme,
+        css=STUDIO_CSS,
+        js="() => { document.documentElement.classList.add('dark'); document.body.classList.add('dark'); }",
+    ) as studio_app:
+        # Hero Studio Header Bar
+        with gr.Row(elem_classes="studio-hero-header"):
+            gr.HTML("""
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 10px;">
+                <div class="hero-title-group">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; background: linear-gradient(135deg, #e63946, #ff4d5e); border-radius: 9px; box-shadow: 0 4px 14px rgba(230, 57, 70, 0.45); flex-shrink: 0;">
+                        <span style="font-size: 20px;">🎬</span>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 18px; font-weight: 800; color: #f0f6fc; letter-spacing: -0.4px;">FastVideo AI Studio Pro</span>
+                            <span style="font-size: 10px; font-weight: 700; background: rgba(245, 166, 35, 0.2); color: #ffbe4d; border: 1px solid rgba(245, 166, 35, 0.4); padding: 1px 7px; border-radius: 10px;">PRO v2.5</span>
+                        </div>
+                        <p style="margin: 2px 0 0 0; color: #8b9bb4; font-size: 11px;">Studio Sản Xuất Video AI Thương Mại • Wan2.1 Diffusion • Triton VSA Native • Siêu Phân Giải Lanczos4</p>
+                    </div>
                 </div>
-                """)
+                <div class="hero-badges-group">
+                    <span class="hero-badge badge-active"><span style="color: #10b981; font-size: 9px;">●</span> RTX 5060 Ti (16GB)</span>
+                    <span class="hero-badge badge-highlight">⚡ Triton VSA 50x</span>
+                    <span class="hero-badge">📦 FastWan 2.1 & 2.2</span>
+                </div>
+            </div>
+            """)
 
         # Main 2-Column Layout
         with gr.Row(equal_height=False, elem_classes="main-studio-row"):
@@ -326,68 +355,71 @@ def create_studio_interface(
             # CỘT TRÁI (LEFT COLUMN): CẤU HÌNH & NHẬP LIỆU
             # ========================================================
             with gr.Column(scale=5, elem_classes="studio-col-left"):
+                # Card 1: Kịch bản & Mô hình
                 with gr.Group(elem_classes="studio-card"):
-                    gr.HTML("<div class='card-title'>📝 Nhập Prompt & Mô Hình</div>")
+                    gr.HTML("<div class='card-title'><span>📝</span> KỊCH BẢN & MÔ HÌNH SẢN XUẤT</div>")
 
                     with gr.Row():
                         model_selection = gr.Dropdown(
                             choices=available_models,
                             value=available_models[0],
-                            label="🤖 Chọn mô hình (Model)",
+                            label="🤖 Chọn Mô Hình (Model)",
+                            scale=3,
                             interactive=True,
                         )
                         example_dropdown = gr.Dropdown(
                             choices=example_labels,
-                            label="💡 Mẫu prompt (Presets)",
+                            label="💡 Mẫu Prompt Điện Ảnh (Presets)",
                             value=None,
+                            scale=2,
                             interactive=True,
                             allow_custom_value=False,
                         )
 
                     prompt_mode = gr.Radio(
-                        choices=["🎯 Tạo đơn (Single Video)", "📋 Tạo nhiều video (Hàng đợi - Mỗi dòng 1 Video)"],
-                        value="🎯 Tạo đơn (Single Video)",
-                        label="📝 Chế độ tạo Prompt",
+                        choices=["🎯 Tạo Đơn (Single)", "📋 Hàng Đợi (Mỗi Dòng 1 Video)"],
+                        value="🎯 Tạo Đơn (Single)",
+                        label="Chế Độ Kịch Bản",
                         interactive=True,
                     )
 
                     prompt = gr.Textbox(
-                        label="Nội dung Prompt",
-                        placeholder="Nhập mô tả video bạn muốn tạo (Ví dụ: A majestic eagle soaring over snowy mountains at sunset, cinematic 4k)...",
-                        lines=8,
-                        max_lines=18,
+                        label="Kịch Bản Prompt (Text-to-Video)",
+                        placeholder="Nhập mô tả video bạn muốn tạo (Ví dụ: A majestic golden eagle soaring over snowy mountain peaks at sunset, cinematic 4k, photorealistic)...",
+                        lines=5,
+                        max_lines=14,
                         autofocus=True,
                     )
 
                     prompt_mode_hint = gr.Markdown(
-                        value="💡 **Chế độ Tạo đơn**: Cả khung văn bản trên sẽ được dùng để tạo ra **1 video duy nhất**.",
+                        value="💡 **Chế độ Tạo Đơn**: Cả khung kịch bản trên sẽ được dùng để tạo ra **1 video duy nhất**.",
                         visible=True,
                     )
 
-                    with gr.Accordion("🚫 Negative Prompt (Tùy chọn loại bỏ chi tiết xấu)", open=False):
-                        use_negative_prompt = gr.Checkbox(label="Bật Negative Prompt", value=False)
+                    with gr.Accordion("🚫 Negative Prompt (Lọc Chi Tiết Xấu / Artifacts)", open=False):
+                        use_negative_prompt = gr.Checkbox(label="Kích hoạt bộ lọc Negative Prompt", value=False)
                         negative_prompt = gr.Textbox(
                             label="Negative Prompt",
-                            placeholder="low quality, blurry, distorted, artifacts, watermark...",
+                            placeholder="low quality, blurry, distorted, artifacts, watermark, worst quality, deformed...",
                             lines=2,
                             visible=False,
                         )
 
-                # Card: Cấu hình Video
+                # Card 2: Thiết lập video
                 with gr.Group(elem_classes="studio-card"):
-                    gr.HTML("<div class='card-title'>⚙️ Cấu hình Video (Options)</div>")
+                    gr.HTML("<div class='card-title'><span>⚙️</span> THIẾT LẬP ĐỊNH DẠNG & ĐỘ PHÂN GIẢI</div>")
 
                     with gr.Row():
                         aspect_ratio = gr.Dropdown(
-                            choices=["16:9 (Ngang)", "9:16 (Dọc Shorts/Reels)", "1:1 (Vuông)"],
-                            value="16:9 (Ngang)",
-                            label="📐 Tỷ lệ khung hình (Aspect Ratio)",
+                            choices=["16:9 (Ngang - YouTube)", "9:16 (Dọc - Shorts/TikTok)", "1:1 (Vuông - Feed)"],
+                            value="16:9 (Ngang - YouTube)",
+                            label="📐 Tỷ Lệ Khung Hình",
                             interactive=True,
                         )
                         resolution = gr.Dropdown(
-                            choices=["SD (480p - Gốc siêu nhanh)", "HD (720p - Sắc nét)", "Full HD (1080p - Siêu nét)"],
-                            value="SD (480p - Gốc siêu nhanh)",
-                            label="📺 Độ phân giải xuất ra (Resolution)",
+                            choices=["SD (480p - Gốc Siêu Tốc)", "HD (720p - Sắc Nét)", "Full HD (1080p - Siêu Nét)"],
+                            value="SD (480p - Gốc Siêu Tốc)",
+                            label="📺 Độ Phân Giải Xuất",
                             interactive=True,
                         )
 
@@ -398,15 +430,15 @@ def create_studio_interface(
 
                     with gr.Row():
                         generation_mode = gr.Dropdown(
-                            choices=["Đơn cảnh (Single Shot)", "Nối tiếp đa cảnh (Multi-Scene Studio: 15s - 60s)"],
-                            value="Đơn cảnh (Single Shot)",
-                            label="🎬 Chế độ tạo video (Generation Mode)",
+                            choices=["Đơn Cảnh (Single Shot)", "Nối Tiếp Đa Cảnh (Multi-Scene 15s-60s)"],
+                            value="Đơn Cảnh (Single Shot)",
+                            label="🎬 Chế Độ Quay",
                             interactive=True,
                         )
 
                     with gr.Row(visible=True) as single_duration_row:
                         duration_dropdown = gr.Dropdown(
-                            label="⏱️ Thời lượng video (Đơn cảnh)",
+                            label="⏱️ Thời Lượng Video (Đơn Cảnh)",
                             choices=DURATION_CHOICES,
                             value="6s (Đề xuất tối ưu)",
                             interactive=True,
@@ -414,7 +446,7 @@ def create_studio_interface(
 
                     with gr.Row(visible=False) as multi_duration_row:
                         multi_duration = gr.Dropdown(
-                            label="⏱️ Tổng thời lượng đa cảnh (Multi-Scene Total Duration)",
+                            label="⏱️ Tổng Thời Lượng Đa Cảnh (15s - 60s)",
                             choices=MULTI_SCENE_DURATIONS,
                             value="20s (4 phân cảnh x 5s)",
                             interactive=True,
@@ -425,8 +457,8 @@ def create_studio_interface(
                         visible=True,
                     )
 
-                # Card: Thông số nâng cao
-                with gr.Accordion("🔧 Thông số nâng cao (Seed, Guidance, Frames)", open=False):
+                # Card 3: Thông số nâng cao
+                with gr.Accordion("🔧 THÔNG SỐ NÂNG CAO (CFG, SEED, FRAMES)", open=False):
                     with gr.Row():
                         guidance_scale = gr.Slider(
                             label="Guidance Scale (CFG)",
@@ -445,13 +477,13 @@ def create_studio_interface(
                     with gr.Row():
                         randomize_seed = gr.Checkbox(label="🎲 Randomize seed", value=False)
                         num_frames = gr.Number(
-                            label="Number of Frames (4k + 1)",
+                            label="Số Khung Hình (Frames = 4k + 1)",
                             value=97,
                             interactive=True,
                         )
                     with gr.Row():
-                        height = gr.Number(label="Render Height", value=448, interactive=True)
-                        width = gr.Number(label="Render Width", value=832, interactive=True)
+                        height = gr.Number(label="Chiều Cao (Height)", value=448, interactive=True)
+                        width = gr.Number(label="Chiều Rộng (Width)", value=832, interactive=True)
 
                 # Nút Run lớn, nổi bật
                 run_button = gr.Button(
@@ -466,14 +498,14 @@ def create_studio_interface(
             # ========================================================
             with gr.Column(scale=7, elem_classes="studio-col-right"):
                 gr.HTML("""
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                    <h3 style="margin: 0; color: #f0f6fc; font-size: 18px; font-weight: 700;">🎬 Danh Sách Video & Hàng Đợi Tiến Trình</h3>
-                    <span style="font-size: 12px; color: #8b9bb4;">Tự động cập nhật từng dòng</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #f0f6fc; text-transform: uppercase; letter-spacing: 0.5px;">🎬 HÀNG ĐỢI & KẾT QUẢ VIDEO</div>
+                    <span style="font-size: 11px; color: #8b9bb4; background: #0b0f15; border: 1px solid #243142; padding: 3px 10px; border-radius: 12px;">Tự động cập nhật trực tiếp</span>
                 </div>
                 """)
 
                 overall_status = gr.HTML(
-                    value="<div class='banner-info'>⚡ Sẵn sàng nhận yêu cầu tạo video. Nhấn <strong>BẮT ĐẦU TẠO VIDEO</strong> để khởi chạy.</div>",
+                    value="<div class='banner-info'><span>⚡</span> <span><strong>Hệ thống sẵn sàng:</strong> Nhập prompt bên trái và nhấn <strong>BẮT ĐẦU TẠO VIDEO</strong> để khởi chạy.</span></div>",
                     visible=True,
                 )
 
@@ -488,8 +520,8 @@ def create_studio_interface(
                     is_first = (i == 0)
                     with gr.Group(visible=is_first, elem_classes="video-row-card") as c_grp:
                         with gr.Row(elem_classes="card-header-row"):
-                            c_hdr = gr.Markdown(f"### 🎬 Video #{i+1}")
-                            c_sta = gr.HTML("<span class='status-badge badge-idle'>Sẵn sàng</span>")
+                            c_hdr = gr.Markdown(f"### 🎬 Phân Cảnh #{i+1}")
+                            c_sta = gr.HTML("<span class='status-badge badge-idle'>Chờ Lệnh</span>")
                         c_prg = gr.HTML(make_progress_bar_html(0, "Chờ bắt đầu...", "idle"))
                         c_vid = gr.Video(label=f"Video #{i+1}", height=380, interactive=False)
                         c_met = gr.Markdown(value="", visible=False)
@@ -502,18 +534,18 @@ def create_studio_interface(
                     card_metas.append(c_met)
 
                 # Video Extension Panel
-                with gr.Accordion("➕ Nối tiếp thêm +5s vào video đã tạo (Video Extension)", open=False):
+                with gr.Accordion("➕ NỐI TIẾP THÊM +5S VÀO VIDEO ĐÃ TẠO (VIDEO EXTENSION)", open=False):
                     extend_target = gr.Dropdown(
                         choices=[f"Video #{i+1}" for i in range(NUM_CARDS)],
                         value="Video #1",
-                        label="🎯 Chọn video muốn nối tiếp",
+                        label="🎯 Chọn Video Muốn Nối Tiếp",
                     )
                     extend_prompt = gr.Textbox(
-                        label="Prompt phân cảnh nối tiếp (+5s)",
+                        label="Prompt Phân Cảnh Nối Tiếp (+5s)",
                         placeholder="Mô tả hành động tiếp theo (để trống sẽ tự động tiếp diễn theo ngữ cảnh)...",
                         lines=2,
                     )
-                    extend_button = gr.Button("🎬 Nối tiếp phân cảnh (+5s)", variant="secondary")
+                    extend_button = gr.Button("🎬 Nối Tiếp Phân Cảnh (+5s)", variant="secondary")
                     extend_status = gr.Markdown(visible=False)
 
         # ----------------------------------------------------
@@ -532,9 +564,9 @@ def create_studio_interface(
         )
 
         def on_prompt_mode_change(mode: str):
-            if "Tạo đơn" in mode:
-                placeholder = "Nhập mô tả video bạn muốn tạo (Ví dụ: A majestic eagle soaring over snowy mountains at sunset, cinematic 4k)..."
-                hint = "💡 **Chế độ Tạo đơn**: Cả khung văn bản trên sẽ được dùng để tạo ra **1 video duy nhất**."
+            if "đơn" in mode.lower() or "single" in mode.lower():
+                placeholder = "Nhập mô tả video bạn muốn tạo (Ví dụ: A majestic golden eagle soaring over snowy mountain peaks at sunset, cinematic 4k, photorealistic)..."
+                hint = "💡 **Chế độ Tạo Đơn**: Cả khung kịch bản trên sẽ được dùng để tạo ra **1 video duy nhất**."
             else:
                 placeholder = (
                     "Nhập mỗi dòng là 1 prompt riêng biệt để tạo nhiều video liên tiếp:\n"
@@ -542,7 +574,7 @@ def create_studio_interface(
                     "Dòng 2: Phi thuyền không gian bay qua các hành tinh lấp lánh ánh sao\n"
                     "Dòng 3: Khung cảnh hoàng hôn rực rỡ trên bãi biển nhiệt đới..."
                 )
-                hint = "💡 **Chế độ Tạo nhiều video (Hàng đợi)**: Mỗi dòng sẽ được tạo thành **1 video riêng biệt** tuần tự trên GPU."
+                hint = "💡 **Chế độ Hàng Đợi**: Mỗi dòng sẽ được tạo thành **1 video riêng biệt** tuần tự trên GPU."
             return gr.update(placeholder=placeholder), gr.update(value=hint)
 
         prompt_mode.change(

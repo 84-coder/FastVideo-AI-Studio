@@ -54,11 +54,27 @@ RESOLUTION_CONFIGS = RESOLUTION_CONFIGS_480P
 def get_resolution_config(model_name: str, aspect_ratio: str, resolution: str) -> Tuple[int, int, int, int]:
     """
     Dynamically select optimal native render and upscaling target based on model architecture.
+    Robustly matches ratio (16:9, 9:16, 1:1) and resolution (480p/SD, 720p/HD, 1080p/FHD).
     """
+    # 1. Normalize aspect ratio key
+    if "9:16" in aspect_ratio:
+        ratio_key = "9:16 (Dọc Shorts/Reels)"
+    elif "1:1" in aspect_ratio:
+        ratio_key = "1:1 (Vuông)"
+    else:
+        ratio_key = "16:9 (Ngang)"
+
+    # 2. Normalize resolution key
+    if "1080" in resolution or "full" in resolution.lower():
+        res_key = "Full HD (1080p - Siêu nét)"
+    elif "720" in resolution or "hd" in resolution.lower():
+        res_key = "HD (720p - Sắc nét)"
+    else:
+        res_key = "SD (480p - Gốc siêu nhanh)"
+
     is_720p_model = ("5B" in model_name or "720p" in model_name.lower() or "5b" in model_name.lower())
-    if is_720p_model:
-        return RESOLUTION_CONFIGS_720P.get((aspect_ratio, resolution), (1280, 704, 1280, 720))
-    return RESOLUTION_CONFIGS_480P.get((aspect_ratio, resolution), (832, 448, 832, 448))
+    configs = RESOLUTION_CONFIGS_720P if is_720p_model else RESOLUTION_CONFIGS_480P
+    return configs.get((ratio_key, res_key), (832, 448, 832, 448))
 
 
 # ---------------------------------------------------------------------------

@@ -9,6 +9,14 @@ import argparse
 import os
 import sys
 
+# Ensure UTF-8 output encoding on Windows console
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 # Ensure IPv4 loopback on Windows to prevent error 10049
 os.environ.setdefault("MASTER_ADDR", "127.0.0.1")
 os.environ.setdefault("FASTVIDEO_LOOPBACK_IP", "127.0.0.1")
