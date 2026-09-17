@@ -226,35 +226,43 @@ STUDIO_CSS = """
 }
 
 /* ========================================================
-   CLEAN FIELD LABELS: No chunky red badges, subtle clean text
+   CLEAN FIELD LABELS: Block layout so inputs sit underneath
    ======================================================== */
 label,
-.block-label,
-span.label-text,
 .form label,
 .block label,
-.block label span,
 div[data-testid="dropdown"] label,
 div[data-testid="textbox"] label {
+    display: block !important;
+    width: 100% !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 0 6px 0 !important;
+}
+
+/* Label text headings */
+.block-label,
+span.label-text,
+div[data-testid="textbox"] > label > span,
+div[data-testid="dropdown"] > label > span,
+fieldset > span {
+    display: block !important;
     color: #8b9bb4 !important;
-    font-size: 11px !important;
+    font-size: 12px !important;
     font-weight: 600 !important;
     letter-spacing: 0.3px !important;
-    margin-bottom: 4px !important;
+    margin-bottom: 6px !important;
+    background: transparent !important;
+    border: none !important;
     padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 5px !important;
 }
 
 /* ========================================================
-   COMBOBOX / DROPDOWN: Single clean border, no nested frames
+   COMBOBOX / DROPDOWN: Scoped specifically to dropdown
    ======================================================== */
-.wrap,
-.gr-dropdown .wrap,
+.gradio-dropdown .wrap,
 div[data-testid="dropdown"] .wrap {
     background-color: #0b0f15 !important;
     border: 1px solid #243142 !important;
@@ -267,23 +275,24 @@ div[data-testid="dropdown"] .wrap {
     box-shadow: none !important;
     position: relative !important;
     box-sizing: border-box !important;
+    width: 100% !important;
 }
-.wrap:hover,
+.gradio-dropdown .wrap:hover,
 div[data-testid="dropdown"] .wrap:hover {
     border-color: #3a4b63 !important;
 }
-.wrap:focus-within,
+.gradio-dropdown .wrap:focus-within,
 div[data-testid="dropdown"] .wrap:focus-within {
     border-color: #ff4d5e !important;
     box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.25) !important;
 }
 
 /* Remove all nested borders inside the dropdown wrap */
-.wrap .wrap-inner,
-.wrap .secondary-wrap,
-.wrap input,
-.wrap select,
-.wrap span,
+.gradio-dropdown .wrap .wrap-inner,
+.gradio-dropdown .wrap .secondary-wrap,
+.gradio-dropdown .wrap input,
+.gradio-dropdown .wrap select,
+.gradio-dropdown .wrap span,
 div[data-testid="dropdown"] .wrap-inner,
 div[data-testid="dropdown"] input {
     border: none !important;
@@ -292,7 +301,7 @@ div[data-testid="dropdown"] input {
     padding: 0 !important;
     margin: 0 !important;
 }
-.wrap input,
+.gradio-dropdown input,
 div[data-testid="dropdown"] input {
     color: #f0f6fc !important;
     font-size: 13px !important;
@@ -305,7 +314,7 @@ div[data-testid="dropdown"] input {
 }
 
 /* Dropdown arrow icon styling */
-.wrap svg,
+.gradio-dropdown svg,
 div[data-testid="dropdown"] svg {
     color: #8b9bb4 !important;
     fill: #8b9bb4 !important;
@@ -335,10 +344,45 @@ ul.options li:hover, .options .item:hover, ul.options li.selected {
 }
 
 /* ========================================================
-   TEXTBOX & TEXTAREA: Single clean border
+   TEXTBOX & TEXTAREA: Full width, stacked label & block textarea
    ======================================================== */
+div[data-testid="textbox"],
+.gradio-textbox {
+    width: 100% !important;
+    display: block !important;
+}
+
+div[data-testid="textbox"] label,
+.gradio-textbox label {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 0 6px 0 !important;
+}
+
+div[data-testid="textbox"] .wrap,
+.gradio-textbox .wrap {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
 textarea,
-div[data-testid="textbox"] textarea {
+div[data-testid="textbox"] textarea,
+.gradio-textbox textarea {
+    display: block !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
     background-color: #0b0f15 !important;
     border: 1px solid #243142 !important;
     border-radius: 6px !important;
@@ -349,9 +393,12 @@ div[data-testid="textbox"] textarea {
     padding: 10px 12px !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
+    min-height: 120px !important;
+    resize: vertical !important;
 }
 textarea:focus,
-div[data-testid="textbox"] textarea:focus {
+div[data-testid="textbox"] textarea:focus,
+.gradio-textbox textarea:focus {
     border-color: #ff4d5e !important;
     box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.25) !important;
     outline: none !important;
@@ -382,48 +429,71 @@ div[data-testid="number"] input:focus {
 /* ========================================================
    RADIO BUTTONS: Clean horizontal pill selector
    ======================================================== */
-.gr-radio, fieldset, div[data-testid="radio-group"] {
+.gradio-radio,
+fieldset,
+div[data-testid="radio-group"] {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 0 8px 0 !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
+    margin: 0 0 10px 0 !important;
+    display: block !important;
     box-shadow: none !important;
+    width: 100% !important;
+    overflow: visible !important;
 }
-.gr-radio > div, fieldset > div {
+.gradio-radio .wrap,
+div[data-testid="radio-group"] .wrap,
+fieldset > div {
     display: flex !important;
-    gap: 8px !important;
+    flex-direction: row !important;
     flex-wrap: wrap !important;
-    border: none !important;
+    gap: 10px !important;
     background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    min-height: auto !important;
     padding: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    overflow: visible !important;
 }
-.gr-radio label, fieldset label {
+.gradio-radio label,
+div[data-testid="radio-group"] label {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
     background: #0b0f15 !important;
     border: 1px solid #243142 !important;
     border-radius: 6px !important;
-    padding: 6px 14px !important;
+    padding: 8px 16px !important;
     color: #8b9bb4 !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     font-weight: 500 !important;
     cursor: pointer !important;
     transition: all 0.15s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
+    box-sizing: border-box !important;
 }
-.gr-radio label:hover, fieldset label:hover {
+.gradio-radio label:hover,
+div[data-testid="radio-group"] label:hover {
     border-color: #3a4b63 !important;
     color: #f0f6fc !important;
 }
-.gr-radio label.selected, fieldset label.selected,
-.gr-radio input[type="radio"]:checked + span {
-    background: rgba(230, 57, 70, 0.15) !important;
+.gradio-radio label.selected,
+div[data-testid="radio-group"] label.selected,
+.gradio-radio label:has(input[type="radio"]:checked),
+div[data-testid="radio-group"] label:has(input[type="radio"]:checked),
+.gradio-radio input[type="radio"]:checked + span {
+    background: rgba(230, 57, 70, 0.18) !important;
     border-color: #e63946 !important;
     color: #ff4d5e !important;
     font-weight: 600 !important;
+}
+.gradio-radio input[type="radio"],
+div[data-testid="radio-group"] input[type="radio"] {
+    accent-color: #e63946 !important;
+    cursor: pointer !important;
 }
 
 /* Checkbox */
