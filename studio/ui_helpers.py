@@ -58,37 +58,37 @@ def create_timing_display(
 
 
 def safe_progress(prog, frac: float, desc: str = "") -> None:
-    """Safely update Gradio progress bar without raising exceptions."""
-    if prog is not None:
-        try:
-            prog(frac, desc=desc)
-        except Exception:
-            pass
+    """Safely update progress - disabled to eliminate Gradio built-in floating overlays."""
+    pass
 
 
 def make_progress_bar_html(pct: int, text: str, status: str = "running") -> str:
-    """Render a sleek dark-mode progress card item."""
+    """Render a sleek in-row progress bar inside each video card."""
     if status == "running":
-        color = "#f5a623"
-        bg_bar = "linear-gradient(90deg, #f5a623, #ffbe4d)"
+        color = "#ff4d5e"
+        bg_bar = "linear-gradient(90deg, #e63946, #ff4d5e)"
+        border_color = "rgba(230, 57, 70, 0.35)"
     elif status == "success":
-        color = "#10b981"
+        color = "#34d399"
         bg_bar = "linear-gradient(90deg, #10b981, #34d399)"
+        border_color = "rgba(16, 185, 129, 0.35)"
     elif status == "error":
-        color = "#ef4444"
+        color = "#f87171"
         bg_bar = "#ef4444"
+        border_color = "rgba(239, 68, 68, 0.35)"
     else:
         color = "#8b9bb4"
         bg_bar = "#243142"
+        border_color = "#243142"
 
     return f"""
-    <div style="margin: 6px 0 10px 0; background: #0b0f15; border-radius: 6px; padding: 8px 12px; border: 1px solid #243142;">
-        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #8b9bb4; margin-bottom: 6px;">
-            <span style="color: #f0f6fc; font-weight: 500;">{text}</span>
-            <span style="font-weight: 700; font-family: monospace; color: {color};">{pct}%</span>
+    <div class="video-row-progress" style="margin: 6px 0 10px 0; background: #0b0f15; border-radius: 6px; padding: 8px 12px; border: 1px solid {border_color};">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 6px;">
+            <span style="color: #f0f6fc; font-weight: 600;">{text}</span>
+            <span style="font-weight: 700; font-family: 'JetBrains Mono', Consolas, monospace; color: {color};">{pct}%</span>
         </div>
-        <div style="background: #161f2c; height: 7px; border-radius: 4px; overflow: hidden;">
-            <div style="background: {bg_bar}; width: {pct}%; height: 100%; border-radius: 4px; transition: width 0.3s ease;"></div>
+        <div style="background: #161f2c; height: 6px; border-radius: 3px; overflow: hidden;">
+            <div style="background: {bg_bar}; width: {pct}%; height: 100%; border-radius: 3px; transition: width 0.3s ease;"></div>
         </div>
     </div>
     """
@@ -687,5 +687,41 @@ button.secondary:hover {
 }
 ::-webkit-scrollbar-thumb:hover {
     background: #3a4b63;
+}
+
+/* ========================================================
+   COMPLETELY HIDE GRADIO BUILT-IN PROGRESS OVERLAYS
+   ======================================================== */
+.progress-bar,
+.gradio-progress,
+.progress-level,
+.progress-text,
+.progress-bar-wrap,
+.meta-text,
+.meta-text-center,
+div[data-testid="progress"],
+div[class*="progress-bar"],
+div[class*="progress-level"],
+div[class*="meta-text"],
+.loading-status,
+.progress-holder,
+.svelte-10f82e {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    position: absolute !important;
+    pointer-events: none !important;
+    z-index: -9999 !important;
+    overflow: hidden !important;
+}
+
+/* Ensure our in-row progress bar inside each video card is clean & prominent */
+.video-row-progress {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
 }
 """

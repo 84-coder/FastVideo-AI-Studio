@@ -691,7 +691,6 @@ def create_studio_interface(
             res_val,
             gen_mode,
             multi_dur,
-            progress=gr.Progress(),
         ):
             if "Tạo đơn" in p_mode:
                 prompts_to_run = [raw_prompt.strip()] if raw_prompt and raw_prompt.strip() else []
@@ -777,9 +776,8 @@ def create_studio_interface(
                 cur_seed = base_seed + idx * 79
 
                 active_cards[idx]["status"] = "<span class='status-badge badge-running'>⚡ Đang xử lý GPU...</span>"
-                active_cards[idx]["progress"] = make_progress_bar_html(10, "Đang khởi tạo...", "running")
+                active_cards[idx]["progress"] = make_progress_bar_html(20, "Đang sinh video trên GPU...", "running")
                 banner_now = f"<div class='banner-info'>⚡ Đang xử lý <strong>Video #{idx+1}/{num_runs}</strong> ({model_sel}): <em>{cur_prompt[:60]}...</em></div>"
-                safe_progress(progress, (idx / num_runs), desc=f"Video #{idx+1}/{num_runs}: Đang tạo...")
                 yield build_yield_pack(banner_now)
 
                 def make_step_cb(c_idx):
@@ -802,7 +800,6 @@ def create_studio_interface(
                         generation_mode=gen_mode,
                         multi_duration=multi_dur,
                         model_selection=model_sel,
-                        progress=progress,
                         step_cb=make_step_cb(idx),
                     )
 
@@ -822,11 +819,9 @@ def create_studio_interface(
                     active_cards[idx]["progress"] = make_progress_bar_html(100, f"Lỗi: {str(ex)}", "error")
                     active_cards[idx]["meta"] = gr.update(visible=True, value=f"⚠️ Lỗi chi tiết: `{str(ex)}`")
 
-                safe_progress(progress, (idx + 1) / num_runs, desc=f"Video #{idx+1} hoàn thành.")
                 yield build_yield_pack(banner_now)
 
             final_banner = f"<div class='banner-success'>🎉 Đã hoàn tất toàn bộ <strong>{num_runs} video</strong> trong hàng đợi!</div>"
-            safe_progress(progress, 1.0, desc="Đã hoàn tất toàn bộ hàng đợi!")
             yield build_yield_pack(final_banner)
 
         all_card_outputs = []
@@ -861,6 +856,7 @@ def create_studio_interface(
             ],
             outputs=[overall_status, *all_card_outputs, extend_target],
             concurrency_limit=20,
+            show_progress="hidden",
         )
 
         # ----------------------------------------------------
@@ -877,7 +873,6 @@ def create_studio_interface(
             ratio,
             res,
             *vid_list,
-            progress=gr.Progress(),
         ):
             try:
                 target_idx = int(chosen_target.replace("Video #", "").strip()) - 1
@@ -956,6 +951,7 @@ def create_studio_interface(
                 *card_videos,
             ],
             outputs=[extend_status, *card_videos],
+            show_progress="hidden",
         )
 
     return studio_app
