@@ -136,9 +136,9 @@ STUDIO_CSS = """
 .studio-hero-header {
     background: linear-gradient(180deg, #16202e 0%, #101622 100%);
     border: 1px solid #243142;
-    border-radius: 10px;
-    padding: 12px 18px;
-    margin-bottom: 12px;
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -147,18 +147,18 @@ STUDIO_CSS = """
 .hero-title-group {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 .hero-badges-group {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 .hero-badge {
     background: #0b0f15;
     border: 1px solid #243142;
-    padding: 4px 10px;
-    border-radius: 16px;
+    padding: 3px 8px;
+    border-radius: 14px;
     font-size: 11px;
     font-weight: 600;
     color: #8b9bb4;
@@ -176,20 +176,20 @@ STUDIO_CSS = """
 }
 
 /* ========================================================
-   Panels & Cards: ONLY the outermost card has border & bg
+   Panels & Cards: Compact padding to fit within single screen
    ======================================================== */
 .studio-card {
     background-color: #141b26 !important;
     border: 1px solid #243142 !important;
     border-radius: 8px !important;
-    padding: 14px 16px !important;
-    margin-bottom: 12px !important;
+    padding: 10px 12px !important;
+    margin-bottom: 8px !important;
     box-shadow: none !important;
 }
 
 /* Card Titles */
 .card-title {
-    font-size: 12px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
     text-transform: uppercase !important;
@@ -197,14 +197,13 @@ STUDIO_CSS = """
     display: flex !important;
     align-items: center !important;
     gap: 6px !important;
-    padding-bottom: 8px !important;
-    margin-bottom: 12px !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 8px !important;
     border-bottom: 1px solid #243142 !important;
 }
 
 /* ========================================================
-   ELIMINATE NESTED BORDERS: Remove all borders from inner
-   Gradio blocks, forms, fieldsets, and containers inside cards
+   ELIMINATE NESTED BORDERS & TIGHTEN MARGINS
    ======================================================== */
 .studio-card .block,
 .studio-card div[data-testid="block"],
@@ -222,7 +221,7 @@ STUDIO_CSS = """
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
-    margin: 0 0 10px 0 !important;
+    margin: 0 0 6px 0 !important;
 }
 
 /* ========================================================
@@ -239,7 +238,7 @@ div[data-testid="textbox"] label {
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
-    margin: 0 0 6px 0 !important;
+    margin: 0 0 4px 0 !important;
 }
 
 /* Label text headings */
@@ -250,26 +249,26 @@ div[data-testid="dropdown"] > label > span,
 fieldset > span {
     display: block !important;
     color: #8b9bb4 !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
     font-weight: 600 !important;
     letter-spacing: 0.3px !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 4px !important;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
 }
 
 /* ========================================================
-   COMBOBOX / DROPDOWN: Scoped specifically to dropdown
+   COMBOBOX / DROPDOWN: Compact 34px height
    ======================================================== */
 .gradio-dropdown .wrap,
 div[data-testid="dropdown"] .wrap {
     background-color: #0b0f15 !important;
     border: 1px solid #243142 !important;
     border-radius: 6px !important;
-    min-height: 38px !important;
-    height: 38px !important;
-    padding: 0 10px !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 8px !important;
     display: flex !important;
     align-items: center !important;
     box-shadow: none !important;
@@ -304,12 +303,12 @@ div[data-testid="dropdown"] input {
 .gradio-dropdown input,
 div[data-testid="dropdown"] input {
     color: #f0f6fc !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     font-weight: 500 !important;
     width: 100% !important;
     height: 100% !important;
     outline: none !important;
-    line-height: 36px !important;
+    line-height: 32px !important;
     text-overflow: ellipsis !important;
 }
 
@@ -344,7 +343,7 @@ ul.options li:hover, .options .item:hover, ul.options li.selected {
 }
 
 /* ========================================================
-   TEXTBOX & TEXTAREA: Full width, stacked label & block textarea
+   TEXTBOX & TEXTAREA: Compact 75px height to fit single screen
    ======================================================== */
 div[data-testid="textbox"],
 .gradio-textbox {
@@ -361,7 +360,7 @@ div[data-testid="textbox"] label,
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 0 6px 0 !important;
+    margin: 0 0 4px 0 !important;
 }
 
 div[data-testid="textbox"] .wrap,
@@ -388,12 +387,13 @@ div[data-testid="textbox"] textarea,
     border-radius: 6px !important;
     color: #f0f6fc !important;
     font-family: 'JetBrains Mono', 'Consolas', monospace !important;
-    font-size: 13px !important;
-    line-height: 1.5 !important;
-    padding: 10px 12px !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    padding: 8px 10px !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
-    min-height: 120px !important;
+    min-height: 75px !important;
+    height: 75px !important;
     resize: vertical !important;
 }
 textarea:focus,
@@ -412,9 +412,9 @@ div[data-testid="number"] input {
     border: 1px solid #243142 !important;
     border-radius: 6px !important;
     color: #f0f6fc !important;
-    font-size: 13px !important;
-    height: 36px !important;
-    padding: 0 10px !important;
+    font-size: 12px !important;
+    height: 34px !important;
+    padding: 0 8px !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
 }
@@ -427,7 +427,7 @@ div[data-testid="number"] input:focus {
 }
 
 /* ========================================================
-   RADIO BUTTONS: Clean horizontal pill selector
+   RADIO BUTTONS: Strictly single-line horizontal pills
    ======================================================== */
 .gradio-radio,
 fieldset,
@@ -435,7 +435,7 @@ div[data-testid="radio-group"] {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 0 10px 0 !important;
+    margin: 0 0 6px 0 !important;
     display: block !important;
     box-shadow: none !important;
     width: 100% !important;
@@ -446,8 +446,8 @@ div[data-testid="radio-group"] .wrap,
 fieldset > div {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: wrap !important;
-    gap: 10px !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
     background: transparent !important;
     border: none !important;
     height: auto !important;
@@ -459,21 +459,25 @@ fieldset > div {
 }
 .gradio-radio label,
 div[data-testid="radio-group"] label {
+    flex: 1 1 50% !important;
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 8px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 6px !important;
     width: auto !important;
     background: #0b0f15 !important;
     border: 1px solid #243142 !important;
     border-radius: 6px !important;
-    padding: 8px 16px !important;
+    padding: 6px 10px !important;
     color: #8b9bb4 !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     font-weight: 500 !important;
     cursor: pointer !important;
     transition: all 0.15s ease !important;
     box-sizing: border-box !important;
+    white-space: nowrap !important;
 }
 .gradio-radio label:hover,
 div[data-testid="radio-group"] label:hover {
@@ -494,6 +498,19 @@ div[data-testid="radio-group"] label:has(input[type="radio"]:checked),
 div[data-testid="radio-group"] input[type="radio"] {
     accent-color: #e63946 !important;
     cursor: pointer !important;
+}
+
+/* Compact Sub-Info Text */
+.studio-sub-info,
+.studio-sub-info p {
+    font-size: 11px !important;
+    color: #8b9bb4 !important;
+    margin: 2px 0 0 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
+}
+.studio-sub-info strong {
+    color: #ffbe4d !important;
 }
 
 /* Checkbox */
@@ -522,10 +539,12 @@ button.btn-generate-main, button.primary {
     border: 1px solid #ff4d5e !important;
     border-radius: 8px !important;
     color: #ffffff !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
     font-weight: 700 !important;
-    letter-spacing: 0.6px !important;
-    padding: 10px 18px !important;
+    letter-spacing: 0.5px !important;
+    padding: 8px 16px !important;
+    height: 38px !important;
+    min-height: 38px !important;
     width: 100% !important;
     box-shadow: 0 4px 14px rgba(230, 57, 70, 0.4) !important;
     transition: all 0.2s ease !important;

@@ -352,21 +352,21 @@ def create_studio_interface(
         # Hero Studio Header Bar
         with gr.Row(elem_classes="studio-hero-header"):
             gr.HTML("""
-            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 8px;">
                 <div class="hero-title-group">
-                    <div style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; background: linear-gradient(135deg, #e63946, #ff4d5e); border-radius: 9px; box-shadow: 0 4px 14px rgba(230, 57, 70, 0.45); flex-shrink: 0;">
-                        <span style="font-size: 20px;">🎬</span>
+                    <div style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: linear-gradient(135deg, #e63946, #ff4d5e); border-radius: 8px; box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4); flex-shrink: 0;">
+                        <span style="font-size: 16px;">🎬</span>
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 18px; font-weight: 800; color: #f0f6fc; letter-spacing: -0.4px;">FastVideo AI Studio Pro</span>
-                            <span style="font-size: 10px; font-weight: 700; background: rgba(245, 166, 35, 0.2); color: #ffbe4d; border: 1px solid rgba(245, 166, 35, 0.4); padding: 1px 7px; border-radius: 10px;">PRO v2.5</span>
+                            <span style="font-size: 16px; font-weight: 800; color: #f0f6fc; letter-spacing: -0.3px;">FastVideo AI Studio Pro</span>
+                            <span style="font-size: 10px; font-weight: 700; background: rgba(245, 166, 35, 0.2); color: #ffbe4d; border: 1px solid rgba(245, 166, 35, 0.4); padding: 1px 6px; border-radius: 10px;">PRO v2.5</span>
                         </div>
-                        <p style="margin: 2px 0 0 0; color: #8b9bb4; font-size: 11px;">Studio Sản Xuất Video AI Thương Mại • Wan2.1 Diffusion • Triton VSA Native • Siêu Phân Giải Lanczos4</p>
+                        <p style="margin: 1px 0 0 0; color: #8b9bb4; font-size: 11px;">Studio Sản Xuất Video AI Thương Mại • Wan2.1 Diffusion • Triton VSA Native</p>
                     </div>
                 </div>
                 <div class="hero-badges-group">
-                    <span class="hero-badge badge-active"><span style="color: #10b981; font-size: 9px;">●</span> RTX 5060 Ti (16GB)</span>
+                    <span class="hero-badge badge-active"><span style="color: #10b981; font-size: 8px;">●</span> RTX 5060 Ti (16GB)</span>
                     <span class="hero-badge badge-highlight">⚡ Triton VSA 50x</span>
                     <span class="hero-badge">📦 FastWan 2.1 & 2.2</span>
                 </div>
@@ -391,8 +391,8 @@ def create_studio_interface(
                     )
 
                     prompt_mode = gr.Radio(
-                        choices=["🎯 Tạo Đơn (Single)", "📋 Hàng Đợi (Mỗi Dòng 1 Video)"],
-                        value="🎯 Tạo Đơn (Single)",
+                        choices=["🎯 Tạo đơn", "📋 Hàng đợi"],
+                        value="🎯 Tạo đơn",
                         label="Chế Độ Kịch Bản",
                         interactive=True,
                     )
@@ -400,14 +400,9 @@ def create_studio_interface(
                     prompt = gr.Textbox(
                         label="Kịch Bản Prompt (Text-to-Video)",
                         placeholder="Nhập mô tả video bạn muốn tạo (Ví dụ: A majestic golden eagle soaring over snowy mountain peaks at sunset, cinematic 4k, photorealistic)...",
-                        lines=5,
-                        max_lines=14,
+                        lines=3,
+                        max_lines=8,
                         autofocus=True,
-                    )
-
-                    prompt_mode_hint = gr.Markdown(
-                        value="💡 **Chế độ Tạo Đơn**: Cả khung kịch bản trên sẽ được dùng để tạo ra **1 video duy nhất**.",
-                        visible=True,
                     )
 
                     with gr.Accordion("🚫 Negative Prompt (Lọc Chi Tiết Xấu / Artifacts)", open=False):
@@ -437,39 +432,40 @@ def create_studio_interface(
                             interactive=True,
                         )
 
-                    resolution_info = gr.Markdown(
-                        value="📐 Độ phân giải xuất: **832 x 448** (Render gốc 16:9 siêu tốc Wan2.1)",
-                        visible=True,
-                    )
-
                     with gr.Row():
                         generation_mode = gr.Dropdown(
-                            choices=["Đơn Cảnh (Single Shot)", "Nối Tiếp Đa Cảnh (Multi-Scene 15s-60s)"],
-                            value="Đơn Cảnh (Single Shot)",
+                            choices=["Đơn Cảnh (Single)", "Nối Tiếp (Multi-Scene)"],
+                            value="Đơn Cảnh (Single)",
                             label="🎬 Chế Độ Quay",
                             interactive=True,
+                            scale=1,
                         )
-
-                    with gr.Row(visible=True) as single_duration_row:
                         duration_dropdown = gr.Dropdown(
-                            label="⏱️ Thời Lượng Video (Đơn Cảnh)",
+                            label="⏱️ Thời Lượng",
                             choices=DURATION_CHOICES,
                             value="6s (Đề xuất tối ưu)",
                             interactive=True,
+                            visible=True,
+                            scale=1,
                         )
-
-                    with gr.Row(visible=False) as multi_duration_row:
                         multi_duration = gr.Dropdown(
-                            label="⏱️ Tổng Thời Lượng Đa Cảnh (15s - 60s)",
+                            label="⏱️ Tổng Thời Lượng",
                             choices=MULTI_SCENE_DURATIONS,
                             value="20s (4 phân cảnh x 5s)",
                             interactive=True,
+                            visible=False,
+                            scale=1,
                         )
 
-                    duration_note = gr.Markdown(
-                        value="✅ **Tối ưu**: Mốc **6s (97 frames @ 16 FPS)** an toàn và tối ưu cho RTX 5060 Ti.",
-                        visible=True,
-                    )
+                    with gr.Row():
+                        resolution_info = gr.Markdown(
+                            value="📐 Render: **832 x 448** (Wan2.1 480P)",
+                            elem_classes="studio-sub-info",
+                        )
+                        duration_note = gr.Markdown(
+                            value="✅ Mốc **6s (97f)** tối ưu RTX 5060 Ti",
+                            elem_classes="studio-sub-info",
+                        )
 
                 # Card 3: Thông số nâng cao
                 with gr.Accordion("🔧 THÔNG SỐ NÂNG CAO (CFG, SEED, FRAMES)", open=False):
@@ -519,8 +515,8 @@ def create_studio_interface(
                 """)
 
                 overall_status = gr.HTML(
-                    value="<div class='banner-info'><span>⚡</span> <span><strong>Hệ thống sẵn sàng:</strong> Nhập prompt bên trái và nhấn <strong>BẮT ĐẦU TẠO VIDEO</strong> để khởi chạy.</span></div>",
-                    visible=True,
+                    value="",
+                    visible=False,
                 )
 
                 card_groups = []
@@ -567,23 +563,20 @@ def create_studio_interface(
         # ----------------------------------------------------
 
         def on_prompt_mode_change(mode: str):
-            if "đơn" in mode.lower() or "single" in mode.lower():
+            if "đơn" in mode.lower():
                 placeholder = "Nhập mô tả video bạn muốn tạo (Ví dụ: A majestic golden eagle soaring over snowy mountain peaks at sunset, cinematic 4k, photorealistic)..."
-                hint = "💡 **Chế độ Tạo Đơn**: Cả khung kịch bản trên sẽ được dùng để tạo ra **1 video duy nhất**."
             else:
                 placeholder = (
                     "Nhập mỗi dòng là 1 prompt riêng biệt để tạo nhiều video liên tiếp:\n"
                     "Dòng 1: Chú mèo đội nón lá uống cà phê bên bờ hồ Hoàn Kiếm\n"
-                    "Dòng 2: Phi thuyền không gian bay qua các hành tinh lấp lánh ánh sao\n"
-                    "Dòng 3: Khung cảnh hoàng hôn rực rỡ trên bãi biển nhiệt đới..."
+                    "Dòng 2: Phi thuyền không gian bay qua các hành tinh lấp lánh ánh sao..."
                 )
-                hint = "💡 **Chế độ Hàng Đợi**: Mỗi dòng sẽ được tạo thành **1 video riêng biệt** tuần tự trên GPU."
-            return gr.update(placeholder=placeholder), gr.update(value=hint)
+            return gr.update(placeholder=placeholder)
 
         prompt_mode.change(
             fn=on_prompt_mode_change,
             inputs=prompt_mode,
-            outputs=[prompt, prompt_mode_hint],
+            outputs=[prompt],
         )
 
         use_negative_prompt.change(
@@ -596,14 +589,14 @@ def create_studio_interface(
             if choice in DURATION_TO_FRAMES:
                 frames = DURATION_TO_FRAMES[choice]
                 if choice in ["12s", "18s", "20s", "25s", "30s"]:
-                    msg = f"⚠️ **Cảnh báo**: Mốc **{choice} ({frames} frames)** đòi hỏi nhiều VRAM. Khuyến nghị dùng chế độ **Nối tiếp đa cảnh** để đạt chất lượng tốt nhất."
+                    msg = f"⚠️ Mốc **{choice} ({frames}f)** cần nhiều VRAM."
                 elif choice in ["8s", "10s"]:
-                    msg = f"ℹ️ **Lưu ý**: Mốc **{choice} ({frames} frames)** tiêu tốn ~11GB-14GB VRAM. Hoạt động tốt trên RTX 5060 Ti."
+                    msg = f"ℹ️ Mốc **{choice} ({frames}f)** tốn ~11GB-14GB VRAM."
                 else:
-                    msg = f"✅ **Tối ưu**: Mốc **{choice} ({frames} frames @ 16 FPS)** an toàn và tối ưu cho RTX 5060 Ti."
+                    msg = f"✅ Mốc **{choice} ({frames}f)** tối ưu RTX 5060 Ti"
                 return gr.update(value=frames), gr.update(value=msg, visible=True)
             elif choice == "Tùy chỉnh":
-                return gr.update(), gr.update(value="✍️ Nhập số frame tùy ý trong mục Thông số nâng cao (tự động làm tròn 4k + 1).", visible=True)
+                return gr.update(), gr.update(value="✍️ Nhập số frame tùy ý trong Nâng cao.", visible=True)
             return gr.update(), gr.update(visible=False)
 
         duration_dropdown.change(
@@ -619,14 +612,14 @@ def create_studio_interface(
 
             if is_5b:
                 if (target_w, target_h) == (native_w, native_h):
-                    msg = f"📐 **Mô hình 5B Native 720P**: Render trực tiếp **{target_w} x {target_h}** sắc nét chuẩn điện ảnh!"
+                    msg = f"📐 **5B Native 720P**: **{target_w} x {target_h}** điện ảnh"
                 else:
-                    msg = f"📐 **Mô hình 5B Native 720P**: Render gốc {native_w}x{native_h} -> Siêu phân giải Lanczos4 lên **{target_w} x {target_h}**!"
+                    msg = f"📐 **5B Native 720P**: {native_w}x{native_h} -> Lanczos4 **{target_w} x {target_h}**"
             else:
                 if (target_w, target_h) == (native_w, native_h):
-                    msg = f"📐 **Mô hình 1.3B**: Render gốc siêu tốc **{target_w} x {target_h}** (Wan2.1 480P)"
+                    msg = f"📐 **1.3B**: Siêu tốc **{target_w} x {target_h}** (Wan2.1 480P)"
                 else:
-                    msg = f"📐 **Mô hình 1.3B**: Render gốc {native_w}x{native_h} -> Siêu phân giải Lanczos4 lên **{target_w} x {target_h}**!"
+                    msg = f"📐 **1.3B**: {native_w}x{native_h} -> Lanczos4 **{target_w} x {target_h}**"
             return gr.update(value=target_h), gr.update(value=target_w), gr.update(value=msg)
 
         aspect_ratio.change(
@@ -648,9 +641,9 @@ def create_studio_interface(
             cfg = get_resolution_config(model_sel, ratio, res_val)
             native_w, native_h, target_w, target_h = cfg
             if is_5b:
-                msg = f"📐 **Mô hình 5B Native 720P**: Render trực tiếp **{target_w} x {target_h}** sắc nét chuẩn điện ảnh!"
+                msg = f"📐 **5B Native 720P**: **{target_w} x {target_h}** điện ảnh"
             else:
-                msg = f"📐 **Mô hình 1.3B**: Render gốc siêu tốc **{target_w} x {target_h}** (Wan2.1 480P)"
+                msg = f"📐 **1.3B**: Siêu tốc **{target_w} x {target_h}** (Wan2.1 480P)"
             return gr.update(value=res_val), gr.update(value=target_h), gr.update(value=target_w), gr.update(value=msg)
 
         model_selection.change(
@@ -660,23 +653,23 @@ def create_studio_interface(
         )
 
         def on_mode_change(mode: str):
-            if "Đa cảnh" in mode:
+            if "Nối Tiếp" in mode or "Đa cảnh" in mode or "Multi" in mode:
                 return (
                     gr.update(visible=False),
                     gr.update(visible=True),
-                    gr.update(value="🎬 **Chế độ Đa Cảnh Studio**: Render tuần tự từng cảnh 5s và ghép mượt mà không lo tràn VRAM!"),
+                    gr.update(value="🎬 **Nối tiếp đa cảnh**: Render tuần tự từng cảnh 5s ghép mượt mà."),
                 )
             else:
                 return (
                     gr.update(visible=True),
                     gr.update(visible=False),
-                    gr.update(value="✅ **Chế độ Đơn Cảnh**: Tạo 1 phân cảnh duy nhất (3s - 10s)."),
+                    gr.update(value="✅ Mốc **6s (97f)** tối ưu RTX 5060 Ti"),
                 )
 
         generation_mode.change(
             fn=on_mode_change,
             inputs=generation_mode,
-            outputs=[single_duration_row, multi_duration_row, duration_note],
+            outputs=[duration_dropdown, multi_duration, duration_note],
         )
 
         # ----------------------------------------------------
