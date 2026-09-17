@@ -11,6 +11,7 @@ set PYTHONUTF8=1
 set MASTER_ADDR=127.0.0.1
 set FASTVIDEO_LOOPBACK_IP=127.0.0.1
 set FASTVIDEO_ATTENTION_BACKEND=VIDEO_SPARSE_ATTN
+set PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 call .venv\Scripts\activate.bat
 python run_studio.py --port 7860 --host 127.0.0.1

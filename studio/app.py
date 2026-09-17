@@ -59,6 +59,23 @@ def setup_model_environment(model_path: str) -> None:
     os.environ["FASTVIDEO_STAGE_LOGGING"] = "1"
 
 
+def format_error_message(ex: Exception) -> str:
+    """Format exceptions into concise, user-friendly status strings."""
+    err_str = str(ex)
+    if "OutOfMemoryError" in err_str or "CUDA out of memory" in err_str:
+        return "GPU không đủ VRAM (CUDA Out of Memory). Hãy giảm độ phân giải hoặc thời lượng."
+    lines = [line.strip() for line in err_str.split("\n") if line.strip()]
+    if lines:
+        last_line = lines[-1]
+        for prefix in ("RuntimeError: ", "ValueError: ", "Exception: "):
+            if last_line.startswith(prefix):
+                last_line = last_line[len(prefix):]
+        if len(last_line) > 85:
+            last_line = last_line[:85] + "..."
+        return last_line
+    return "Đã xảy ra lỗi trong quá trình xử lý."
+
+
 def get_or_load_generator(
     model_name_or_key: str,
     generators: Dict[str, VideoGenerator],
@@ -75,7 +92,6 @@ def get_or_load_generator(
         return generators[model_path], default_params[model_path]
 
     msg = f"📦 Đang giải phóng mô hình cũ & nạp {model_name_or_key}..."
-    safe_progress(progress, 0.05, desc=msg)
     if step_cb:
         step_cb(5, msg)
     print(f"\n[Studio] Preparing to load model: {model_path}")
@@ -91,16 +107,31 @@ def get_or_load_generator(
     default_params.clear()
 
     gc.collect()
-    torch.cuda.empty_cache()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     setup_model_environment(model_path)
+
+    # Automatically determine layerwise offload requirement:
+    # 5B models require layerwise offload on <= 24GB GPUs (RTX 5060 Ti 16GB, RTX 4070 12GB).
+    # 1.3B models require layerwise offload on <= 10GB GPUs (e.g. 8GB VRAM).
+    is_5b = ("5B" in model_path or "5b" in model_path)
+    total_vram_gb = 0.0
+    if torch.cuda.is_available():
+        try:
+            total_vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+        except Exception:
+            pass
+
+    use_layerwise = is_5b or (total_vram_gb > 0 and total_vram_gb <= 10)
+    print(f"[Studio] Model: {model_path} | VRAM: {total_vram_gb:.1f}GB | Layerwise Offload: {use_layerwise}")
 
     gen = VideoGenerator.from_pretrained(
         model_path,
         num_gpus=1,
         text_encoder_cpu_offload=True,
-        dit_layerwise_offload=False,
-        dit_cpu_offload=True,
+        dit_layerwise_offload=use_layerwise,
+        dit_cpu_offload=False,
         vae_cpu_offload=True,
     )
     param = SamplingParam.from_pretrained(model_path)
@@ -815,9 +846,16 @@ def create_studio_interface(
                 except Exception as ex:
                     import traceback
                     traceback.print_exc()
+                    short_err = format_error_message(ex)
                     active_cards[idx]["status"] = "<span class='status-badge badge-error'>❌ Thất bại</span>"
-                    active_cards[idx]["progress"] = make_progress_bar_html(100, f"Lỗi: {str(ex)}", "error")
-                    active_cards[idx]["meta"] = gr.update(visible=True, value=f"⚠️ Lỗi chi tiết: `{str(ex)}`")
+                    active_cards[idx]["progress"] = make_progress_bar_html(0, short_err, "error")
+                    active_cards[idx]["meta"] = gr.update(
+                        visible=True,
+                        value=f"<div style='color: #f87171; font-size: 12px; margin-top: 4px;'>⚠️ {short_err}</div>"
+                    )
+                    gc.collect()
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
 
                 yield build_yield_pack(banner_now)
 

@@ -17,9 +17,10 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-# Ensure IPv4 loopback on Windows to prevent error 10049
+# Ensure IPv4 loopback on Windows to prevent error 10049 and configure CUDA allocator
 os.environ.setdefault("MASTER_ADDR", "127.0.0.1")
 os.environ.setdefault("FASTVIDEO_LOOPBACK_IP", "127.0.0.1")
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 import gradio as gr
 from fastapi import FastAPI, Request, HTTPException
@@ -69,16 +70,26 @@ def main():
     default_params = {}
     model_paths = [p.strip() for p in args.t2v_model_paths.split(",") if p.strip()]
 
+    import torch
+    total_vram_gb = 0.0
+    if torch.cuda.is_available():
+        try:
+            total_vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+        except Exception:
+            pass
+
     for model_path in model_paths:
         print(f"📦 Đang tải mô hình: {model_path}")
         setup_model_environment(model_path)
+        is_5b = ("5B" in model_path or "5b" in model_path)
+        need_layerwise = args.dit_layerwise_offload or is_5b or (total_vram_gb > 0 and total_vram_gb <= 10)
         generators[model_path] = VideoGenerator.from_pretrained(
             model_path,
             num_gpus=1,
             text_encoder_cpu_offload=args.text_encoder_cpu_offload,
-            dit_layerwise_offload=args.dit_layerwise_offload,
+            dit_layerwise_offload=need_layerwise,
             dit_cpu_offload=False,
-            vae_cpu_offload=False,
+            vae_cpu_offload=True,
         )
         default_params[model_path] = SamplingParam.from_pretrained(model_path)
 

@@ -76,16 +76,21 @@ def make_progress_bar_html(pct: int, text: str, status: str = "running") -> str:
         color = "#f87171"
         bg_bar = "#ef4444"
         border_color = "rgba(239, 68, 68, 0.35)"
+        pct = 0
     else:
         color = "#8b9bb4"
         bg_bar = "#243142"
         border_color = "#243142"
 
+    clean_text = str(text).replace("\n", " ").strip()
+    if len(clean_text) > 85:
+        clean_text = clean_text[:85] + "..."
+
     return f"""
     <div class="video-row-progress" style="margin: 6px 0 10px 0; background: #0b0f15; border-radius: 6px; padding: 8px 12px; border: 1px solid {border_color};">
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 6px;">
-            <span style="color: #f0f6fc; font-weight: 600;">{text}</span>
-            <span style="font-weight: 700; font-family: 'JetBrains Mono', Consolas, monospace; color: {color};">{pct}%</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 6px; gap: 8px;">
+            <span style="color: #f0f6fc; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{clean_text}">{clean_text}</span>
+            <span style="font-weight: 700; font-family: 'JetBrains Mono', Consolas, monospace; color: {color}; flex-shrink: 0;">{pct}%</span>
         </div>
         <div style="background: #161f2c; height: 6px; border-radius: 3px; overflow: hidden;">
             <div style="background: {bg_bar}; width: {pct}%; height: 100%; border-radius: 3px; transition: width 0.3s ease;"></div>
