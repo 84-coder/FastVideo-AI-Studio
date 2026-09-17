@@ -306,8 +306,6 @@ def create_studio_interface(
 
             return output_path, params.seed, total_time, target_w, target_h
 
-    examples, example_labels = load_studio_prompts()
-
     theme = gr.themes.Soft(
         primary_hue="rose",
         neutral_hue="slate",
@@ -385,22 +383,12 @@ def create_studio_interface(
                 with gr.Group(elem_classes="studio-card"):
                     gr.HTML("<div class='card-title'><span>📝</span> KỊCH BẢN & MÔ HÌNH SẢN XUẤT</div>")
 
-                    with gr.Row():
-                        model_selection = gr.Dropdown(
-                            choices=available_models,
-                            value=available_models[0],
-                            label="🤖 Chọn Mô Hình (Model)",
-                            scale=3,
-                            interactive=True,
-                        )
-                        example_dropdown = gr.Dropdown(
-                            choices=example_labels,
-                            label="💡 Mẫu Prompt Điện Ảnh (Presets)",
-                            value=None,
-                            scale=2,
-                            interactive=True,
-                            allow_custom_value=False,
-                        )
+                    model_selection = gr.Dropdown(
+                        choices=available_models,
+                        value=available_models[0],
+                        label="🤖 Chọn Mô Hình (Model)",
+                        interactive=True,
+                    )
 
                     prompt_mode = gr.Radio(
                         choices=["🎯 Tạo Đơn (Single)", "📋 Hàng Đợi (Mỗi Dòng 1 Video)"],
@@ -577,17 +565,6 @@ def create_studio_interface(
         # ----------------------------------------------------
         # EVENT BINDINGS
         # ----------------------------------------------------
-        def on_example_select(example_label: str) -> str:
-            if example_label and example_label in example_labels:
-                idx = example_labels.index(example_label)
-                return examples[idx]
-            return ""
-
-        example_dropdown.change(
-            fn=on_example_select,
-            inputs=example_dropdown,
-            outputs=prompt,
-        )
 
         def on_prompt_mode_change(mode: str):
             if "đơn" in mode.lower() or "single" in mode.lower():
